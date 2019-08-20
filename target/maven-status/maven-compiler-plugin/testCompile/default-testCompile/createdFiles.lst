@@ -1,0 +1,5 @@
+cat/altimiras/jdbc/polarbear/statement/DirsIteratorTest.class
+cat/altimiras/jdbc/polarbear/query/DateFormatterTest.class
+cat/altimiras/jdbc/polarbear/resultset/FSResultSetTest.class
+cat/altimiras/jdbc/polarbear/fs/FSTest.class
+cat/altimiras/jdbc/polarbear/QueryParserTest.class

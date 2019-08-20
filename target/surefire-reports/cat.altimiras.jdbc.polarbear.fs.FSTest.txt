@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: cat.altimiras.jdbc.polarbear.fs.FSTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.22 s - in cat.altimiras.jdbc.polarbear.fs.FSTest

@@ -1,0 +1,15 @@
+{
+  "name" : "test-table",
+  "format" : "csv",
+  "tsColumnName" : "ts",
+  "partitionsFormat" : "YYYY/MM/dd/HH/mm",
+  "since" : "2019-01-01 12:58",
+  "step" : 1,
+  "notFoundMaxLimit" : 5,
+  "columns" : [
+    {
+      "name" : "field",
+      "type" : "string"
+    }
+  ]
+}
