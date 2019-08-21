@@ -1,9 +1,26 @@
 package cat.altimiras.jdbc.polarbear.def;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.text.SimpleDateFormat;
+
 public class Column {
 
 	private String name;
 	private String type;
+
+	private String dateFormat = "yyyy/MM/dd";
+	private String timeFormat = "HH:mm:ss";
+	private String timestampFormat = "yyyy/MM/dd HH:mm:ss";
+	private Boolean isUnixtime = false;
+
+	@JsonIgnore
+	private SimpleDateFormat dateFormatter;
+	@JsonIgnore
+	private SimpleDateFormat timeFormatter;
+	@JsonIgnore
+	private SimpleDateFormat timestampFormatter;
+
 
 	public Column() {
 	}
@@ -27,5 +44,46 @@ public class Column {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public SimpleDateFormat getDateFormat() {
+		if (dateFormatter == null){
+			dateFormatter = new SimpleDateFormat(dateFormat);
+		}
+		return dateFormatter;
+	}
+
+	public SimpleDateFormat getTimeFormat() {
+		if (timeFormatter == null){
+			timeFormatter = new SimpleDateFormat(timeFormat);
+		}
+		return timeFormatter;
+	}
+
+	public SimpleDateFormat getTimestampFormat() {
+		if (timestampFormatter == null){
+			timestampFormatter = new SimpleDateFormat(timestampFormat);
+		}
+		return timestampFormatter;
+	}
+
+	public Boolean getUnixtime() {
+		return isUnixtime;
+	}
+
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
+	public void setTimeFormat(String timeFormat) {
+		this.timeFormat = timeFormat;
+	}
+
+	public void setTimestampFormat(String timestampFormat) {
+		this.timestampFormat = timestampFormat;
+	}
+
+	public void setUnixtime(Boolean unixtime) {
+		isUnixtime = unixtime;
 	}
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,9 @@ public class TableDefinition {
 	private LocalDateTime since;
 	private int step;
 	private int notFoundMaxLimit;
+	private boolean ignoreWrongRowData=true;
+
+	private String separator = ","; //only csv format
 
 
 	public String getName() {
@@ -86,9 +90,26 @@ public class TableDefinition {
 		this.notFoundMaxLimit = notFoundMaxLimit;
 	}
 
-	public int getPosition(String name){
-		if (columnPosition == null){
-			for(int i = 0; i< columns.size(); i++){
+	public boolean isIgnoreWrongRowData() {
+		return ignoreWrongRowData;
+	}
+
+	public void setIgnoreWrongRowData(boolean ignoreWrongRowData) {
+		this.ignoreWrongRowData = ignoreWrongRowData;
+	}
+
+	public String getSeparator() {
+		return separator;
+	}
+
+	public void setSeparator(String separator) {
+		this.separator = separator;
+	}
+
+	public int getPosition(String name) {
+		if (columnPosition == null) {
+			columnPosition = new HashMap<>(columns.size());
+			for (int i = 0; i < columns.size(); i++) {
 				columnPosition.put(columns.get(i).getName(), i);
 			}
 		}
