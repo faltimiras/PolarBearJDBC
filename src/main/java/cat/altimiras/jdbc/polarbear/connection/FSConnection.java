@@ -33,7 +33,7 @@ public class FSConnection extends  PolarBearConnection{
 
 	@Override
 	public Statement createStatement() throws SQLException {
-		return new FSStatement(target, tableManager, queryParser);
+		return new FSStatement(target, tableManager, queryParser, this);
 	}
 
 }

@@ -29,7 +29,7 @@ public class CSVFormatter extends RowFormatter {
 		if (raw == null) {
 			return null;
 		}
-		Object[] values = raw.split(separator, -1);
+		String[] values = raw.split(separator, -1);
 		if (values.length == columns) {
 			if (fields == null) { // null means *, return all fields
 				return values;
@@ -45,9 +45,9 @@ public class CSVFormatter extends RowFormatter {
 		}
 	}
 
-	private Object[] filter(Object[] values, List<Field> fields) {
+	private String[] filter(String[] values, List<Field> fields) {
 
-		Object[] filter = new Object[fields.size()];
+		String[] filter = new String[fields.size()];
 		for (int i = 0; i < fields.size(); i++) {
 			int pos = this.tableDefinition.getPosition(fields.get(i).getName());
 			filter[i] = values[pos];

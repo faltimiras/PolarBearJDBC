@@ -28,11 +28,6 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
-	public Statement createStatement() throws SQLException {
-		return new PolarBearStatement(target, tableManager, queryParser);
-	}
-
-	@Override
 	public PreparedStatement prepareStatement(String sql) throws SQLException {
 		throw new UnsupportedOperationException();
 	}

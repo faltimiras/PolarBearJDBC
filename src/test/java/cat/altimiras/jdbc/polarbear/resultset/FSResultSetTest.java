@@ -4,9 +4,11 @@ import cat.altimiras.jdbc.polarbear.def.Column;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 import cat.altimiras.jdbc.polarbear.statement.DirsIterator;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -14,6 +16,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 public class FSResultSetTest {
@@ -22,11 +26,13 @@ public class FSResultSetTest {
 	@Test
 	public void realTest() throws Exception {
 
+		Statement statement = mock(Statement.class);
+
 		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test-table1"),
 				LocalDateTime.of(2019, 01, 01, 12, 58),
 				LocalDateTime.of(2019, 01, 01, 13, 05), 1, 5);
 
-		FSResultSet fsResultSet = new FSResultSet(null, tableDefTest(), dirsIterator);
+		FSResultSet fsResultSet = new FSResultSet(null, tableDefTest(), dirsIterator, statement );
 
 		assertTrue(fsResultSet.next());
 		assertEquals("1259-1-1", fsResultSet.getString(1));
@@ -79,7 +85,7 @@ public class FSResultSetTest {
 		tableDefinition.setFormat("csv");
 		tableDefinition.setColumns(Arrays.asList(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19));
 
-		FSResultSet rs = new FSResultSet(null, tableDefinition, null);
+		FSResultSet rs = new FSResultSet(null, tableDefinition, null, null);
 		rs.setCurrentRow(new String[]{"string", "1", "2", "1.1", "2020/10/10", "12:30:02", "2019/01/01 05:23:55", "2.2", "true", "3.141592653589793238462643383279502884197169399375105820974944592307816406286", "bytes", "32", "6", "1566415210208", "100000", "1566415210208", "2020#05#16", "23@45", "22::33::23-1980#05#01"});
 
 
@@ -138,7 +144,7 @@ public class FSResultSetTest {
 	@Test(expected = SQLException.class)
 	public void notExistPosition() throws Exception {
 
-		FSResultSet rs = new FSResultSet(null, tableDefTest(), null);
+		FSResultSet rs = new FSResultSet(null, tableDefTest(), null, null);
 		rs.setCurrentRow(new String[]{"string"});
 
 		rs.getLong(2);
@@ -147,7 +153,7 @@ public class FSResultSetTest {
 	@Test(expected = SQLException.class)
 	public void notExistLabel() throws Exception {
 
-		FSResultSet rs = new FSResultSet(null, tableDefTest(), null);
+		FSResultSet rs = new FSResultSet(null, tableDefTest(), null, null);
 		rs.setCurrentRow(new String[]{"string"});
 
 		rs.getString("notexist");
@@ -156,7 +162,7 @@ public class FSResultSetTest {
 	@Test(expected = SQLException.class)
 	public void wrongType() throws Exception {
 
-		FSResultSet rs = new FSResultSet(null, tableDefTest(), null);
+		FSResultSet rs = new FSResultSet(null, tableDefTest(), null, null);
 		rs.setCurrentRow(new String[]{"string"});
 		rs.getByte("first");
 	}
@@ -164,12 +170,33 @@ public class FSResultSetTest {
 	@Test
 	public void empty() throws Exception {
 
-		FSResultSet rs = new FSResultSet(null, tableDefTest(), null);
+		FSResultSet rs = new FSResultSet(null, tableDefTest(), null, null);
 		rs.setCurrentRow(new String[]{""});
-
 
 		assertEquals("",rs.getString("first"));
 	}
+
+	@Test
+	public void maxRows() throws Exception{
+
+		Statement statement = mock(Statement.class);
+		when(statement.getMaxRows()).thenReturn(2);
+
+		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test-table1"),
+				LocalDateTime.of(2019, 01, 01, 12, 58),
+				LocalDateTime.of(2019, 01, 01, 13, 05), 1, 5);
+
+		FSResultSet fsResultSet = new FSResultSet(null, tableDefTest(), dirsIterator, statement );
+
+		assertTrue(fsResultSet.next());
+		assertEquals("1259-1-1", fsResultSet.getString(1));
+		assertTrue(fsResultSet.next());
+		assertEquals("1259-1-2", fsResultSet.getString(1));
+		assertFalse(fsResultSet.next());
+
+
+	}
+
 
 	private TableDefinition tableDefTest() {
 

@@ -60,7 +60,6 @@ public class DirsIterator implements Iterator<Path> {
 			if (Files.exists(next) && Files.isDirectory(next)) {
 				log.debug("Next path: {}", next);
 				current = current.plus(step, ChronoUnit.MINUTES);
-				notFound = 0;
 				return true;
 			} else {
 				log.debug("Path do not exist: {}", next);

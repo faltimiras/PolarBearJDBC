@@ -9,6 +9,7 @@ import cat.altimiras.jdbc.polarbear.resultset.FSResultSet;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -17,8 +18,8 @@ public class FSStatement extends PolarBearStatement {
 
 	private final Path base;
 
-	public FSStatement(String target, TableManager tableManager, QueryParser queryParser) {
-		super(target, tableManager, queryParser);
+	public FSStatement(String target, TableManager tableManager, QueryParser queryParser, Connection connection) {
+		super(target, tableManager, queryParser, connection);
 		this.base = Paths.get(target);
 	}
 
@@ -35,6 +36,8 @@ public class FSStatement extends PolarBearStatement {
 			throw new PolarBearException("Time range is not valid");
 		}
 
-		return new FSResultSet(query.getFields(), tableDefinition, new DirsIterator(base.resolve(query.getTable()), from, to, tableDefinition.getStep(), tableDefinition.getNotFoundMaxLimit()));
+		DirsIterator dirsIterator = new DirsIterator(base.resolve(query.getTable()), from, to, tableDefinition.getStep(), tableDefinition.getNotFoundMaxLimit());
+		resultSet =  new FSResultSet(query.getFields(), tableDefinition, dirsIterator, this);
+		return resultSet;
 	}
 }

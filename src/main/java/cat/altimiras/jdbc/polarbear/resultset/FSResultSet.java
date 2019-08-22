@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -32,9 +33,10 @@ public class FSResultSet extends PolarBearResultSet {
 	private Iterator<String> itRows;
 	private String rowRaw;
 	private String[] row;
+	private int rowsFetched = 0;
 
-	public FSResultSet(List<Field> fields, TableDefinition tableDefinition, DirsIterator itDirs) throws PolarBearException {
-		super(fields, tableDefinition);
+	public FSResultSet(List<Field> fields, TableDefinition tableDefinition, DirsIterator itDirs, Statement statement) throws PolarBearException {
+		super(fields, tableDefinition, statement);
 		try {
 			this.itDirs = itDirs;
 		} catch (Exception e) {
@@ -45,10 +47,16 @@ public class FSResultSet extends PolarBearResultSet {
 	@Override
 	public boolean next() throws PolarBearException {
 		try {
+			if (statement.getMaxRows() > 0 && rowsFetched >= statement.getMaxRows()) {
+				return false;
+			}
+
 			if (nextLine()) {
+				rowsFetched++;
 				return true;
 			} else {
 				if (nextFile()) {
+					rowsFetched++;
 					return true;
 				} else {
 					return nextDir();
@@ -414,6 +422,7 @@ public class FSResultSet extends PolarBearResultSet {
 			filesInDir = Files.walk(nextDir, 1).filter(Files::isRegularFile);
 			itFilesInDir = filesInDir.iterator();
 			if (nextFile()) {
+				rowsFetched++;
 				return true;
 			}
 		}
@@ -432,5 +441,10 @@ public class FSResultSet extends PolarBearResultSet {
 
 	void setCurrentRow(String[] row) {
 		this.row = row;
+	}
+
+	@Override
+	public Statement getStatement() throws SQLException {
+		return super.getStatement();
 	}
 }

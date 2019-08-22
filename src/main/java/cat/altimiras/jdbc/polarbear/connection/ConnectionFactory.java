@@ -40,11 +40,13 @@ public class ConnectionFactory {
 
 			switch (provider) {
 				case "s3":
-					return new S3Connection(target, user, psw);
+					throw new UnsupportedOperationException();
+					//return new S3Connection(target, user, psw);
 				case "fs":
 					return new FSConnection(target);
 				case "gcs":
-					return new GCSConnection(target, user, psw);
+					throw new UnsupportedOperationException();
+					//return new GCSConnection(target, user, psw);
 				default:
 					throw new PolarBearException("provider not supported");
 			}

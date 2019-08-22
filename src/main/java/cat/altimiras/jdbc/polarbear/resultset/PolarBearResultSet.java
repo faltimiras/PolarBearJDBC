@@ -15,95 +15,27 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-public class PolarBearResultSet implements ResultSet {
+public abstract class PolarBearResultSet implements ResultSet {
 
 	protected final TableDefinition tableDefinition;
 	protected final RowFormatter rowFormatter;
 	protected final List<Field> fields;
+	protected final Statement statement;
 
-	public PolarBearResultSet(List<Field> fields, TableDefinition tableDefinition) throws PolarBearException {
+	public PolarBearResultSet(List<Field> fields, TableDefinition tableDefinition, Statement statement) throws PolarBearException {
 		this.tableDefinition = tableDefinition;
 		this.rowFormatter = RowFormatterFactory.get(tableDefinition.getFormat(), tableDefinition);
 		this.fields = fields;
+		this.statement = statement;
 	}
 
 	@Override
-	public boolean next() throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void close() throws SQLException {
-		throw new UnsupportedOperationException();
+	public Statement getStatement() throws SQLException {
+		return statement;
 	}
 
 	@Override
 	public boolean wasNull() throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public String getString(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean getBoolean(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public byte getByte(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public short getShort(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int getInt(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public long getLong(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public float getFloat(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public double getDouble(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public byte[] getBytes(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Date getDate(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Time getTime(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Timestamp getTimestamp(int columnIndex) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -119,71 +51,6 @@ public class PolarBearResultSet implements ResultSet {
 
 	@Override
 	public InputStream getBinaryStream(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public String getString(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean getBoolean(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public byte getByte(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public short getShort(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int getInt(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public long getLong(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public float getFloat(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public double getDouble(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public byte[] getBytes(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Date getDate(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Time getTime(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Timestamp getTimestamp(String columnLabel) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -232,27 +99,12 @@ public class PolarBearResultSet implements ResultSet {
 	}
 
 	@Override
-	public int findColumn(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Reader getCharacterStream(int columnIndex) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Reader getCharacterStream(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -583,11 +435,6 @@ public class PolarBearResultSet implements ResultSet {
 
 	@Override
 	public void moveToCurrentRow() throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Statement getStatement() throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
