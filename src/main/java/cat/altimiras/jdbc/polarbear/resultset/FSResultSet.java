@@ -2,6 +2,7 @@ package cat.altimiras.jdbc.polarbear.resultset;
 
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
+import cat.altimiras.jdbc.polarbear.query.Field;
 import cat.altimiras.jdbc.polarbear.statement.DirsIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class FSResultSet extends PolarBearResultSet {
@@ -31,8 +33,8 @@ public class FSResultSet extends PolarBearResultSet {
 	private String rowRaw;
 	private String[] row;
 
-	public FSResultSet(TableDefinition tableDefinition, DirsIterator itDirs) throws PolarBearException {
-		super(tableDefinition);
+	public FSResultSet(List<Field> fields, TableDefinition tableDefinition, DirsIterator itDirs) throws PolarBearException {
+		super(fields, tableDefinition);
 		try {
 			this.itDirs = itDirs;
 		} catch (Exception e) {
@@ -387,7 +389,7 @@ public class FSResultSet extends PolarBearResultSet {
 				log.debug("Empty line detected. Ignoring it");
 				return nextLine();
 			} else {
-				row = (String[]) rowFormatter.parse(rowRaw);
+				row = (String[]) rowFormatter.parse(rowRaw, this.fields);
 				return true;
 			}
 		}

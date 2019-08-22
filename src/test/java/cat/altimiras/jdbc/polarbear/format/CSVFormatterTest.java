@@ -2,6 +2,7 @@ package cat.altimiras.jdbc.polarbear.format;
 
 import cat.altimiras.jdbc.polarbear.def.Column;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
+import cat.altimiras.jdbc.polarbear.query.Field;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -13,7 +14,7 @@ public class CSVFormatterTest {
 	@Test
 	public void ok() throws Exception{
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
-		Object[] parsed = formatter.parse("a,b,1");
+		Object[] parsed = formatter.parse("a,b,1", null);
 		assertEquals(3, parsed.length);
 		assertEquals("a", parsed[0]);
 		assertEquals("b", parsed[1]);
@@ -23,7 +24,7 @@ public class CSVFormatterTest {
 	@Test
 	public void emptyMiddle() throws Exception{
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
-		Object[] parsed = formatter.parse("a,,1");
+		Object[] parsed = formatter.parse("a,,1", null);
 		assertEquals(3, parsed.length);
 		assertEquals("a", parsed[0]);
 		assertEquals("", parsed[1]);
@@ -33,7 +34,7 @@ public class CSVFormatterTest {
 	@Test
 	public void emptyBeginning() throws Exception{
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
-		Object[] parsed = formatter.parse(",b,1");
+		Object[] parsed = formatter.parse(",b,1", null);
 		assertEquals(3, parsed.length);
 		assertEquals("", parsed[0]);
 		assertEquals("b", parsed[1]);
@@ -43,7 +44,7 @@ public class CSVFormatterTest {
 	@Test
 	public void emptyEnd() throws Exception{
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
-		Object[] parsed = formatter.parse("a,b,");
+		Object[] parsed = formatter.parse("a,b,", null);
 		assertEquals(3, parsed.length);
 		assertEquals("a", parsed[0]);
 		assertEquals("b", parsed[1]);
@@ -53,11 +54,28 @@ public class CSVFormatterTest {
 	@Test
 	public void nulls() throws Exception{
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
-		Object[] parsed = formatter.parse(",,");
+		Object[] parsed = formatter.parse(",,", null);
 		assertEquals(3, parsed.length);
 		assertEquals("", parsed[0]);
 		assertEquals("", parsed[1]);
 		assertEquals("", parsed[2]);
+	}
+
+	@Test
+	public void filter() throws Exception {
+		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
+		Object[] parsed = formatter.parse(",,", Arrays.asList(new Field("first",  null)));
+		assertEquals(1, parsed.length);
+		assertEquals("", parsed[0]);
+	}
+
+	@Test
+	public void filter2() throws Exception {
+		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
+		Object[] parsed = formatter.parse("a,b,c", Arrays.asList(new Field("first",  null), new Field("third",  null)));
+		assertEquals(2, parsed.length);
+		assertEquals("a", parsed[0]);
+		assertEquals("c", parsed[1]);
 	}
 
 	private TableDefinition tableDefTest(String separator, boolean ignore) {
@@ -76,5 +94,4 @@ public class CSVFormatterTest {
 
 		return tableDefinition;
 	}
-
 }

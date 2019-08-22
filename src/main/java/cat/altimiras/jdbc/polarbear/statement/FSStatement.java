@@ -35,6 +35,6 @@ public class FSStatement extends PolarBearStatement {
 			throw new PolarBearException("Time range is not valid");
 		}
 
-		return new FSResultSet(tableDefinition, new DirsIterator(base.resolve(query.getTable()), from, to, tableDefinition.getStep(), tableDefinition.getNotFoundMaxLimit()));
+		return new FSResultSet(query.getFields(), tableDefinition, new DirsIterator(base.resolve(query.getTable()), from, to, tableDefinition.getStep(), tableDefinition.getNotFoundMaxLimit()));
 	}
 }

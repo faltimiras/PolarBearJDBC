@@ -4,6 +4,7 @@ import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 import cat.altimiras.jdbc.polarbear.format.RowFormatter;
 import cat.altimiras.jdbc.polarbear.format.RowFormatterFactory;
+import cat.altimiras.jdbc.polarbear.query.Field;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -11,16 +12,19 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 public class PolarBearResultSet implements ResultSet {
 
-	protected TableDefinition tableDefinition;
-	protected RowFormatter rowFormatter;
+	protected final TableDefinition tableDefinition;
+	protected final RowFormatter rowFormatter;
+	protected final List<Field> fields;
 
-	public PolarBearResultSet(TableDefinition tableDefinition) throws PolarBearException {
+	public PolarBearResultSet(List<Field> fields, TableDefinition tableDefinition) throws PolarBearException {
 		this.tableDefinition = tableDefinition;
 		this.rowFormatter = RowFormatterFactory.get(tableDefinition.getFormat(), tableDefinition);
+		this.fields = fields;
 	}
 
 	@Override

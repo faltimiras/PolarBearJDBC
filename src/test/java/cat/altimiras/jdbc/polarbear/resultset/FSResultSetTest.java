@@ -26,7 +26,7 @@ public class FSResultSetTest {
 				LocalDateTime.of(2019, 01, 01, 12, 58),
 				LocalDateTime.of(2019, 01, 01, 13, 05), 1, 5);
 
-		FSResultSet fsResultSet = new FSResultSet(tableDefTest(), dirsIterator);
+		FSResultSet fsResultSet = new FSResultSet(null, tableDefTest(), dirsIterator);
 
 		assertTrue(fsResultSet.next());
 		assertEquals("1259-1-1", fsResultSet.getString(1));
@@ -79,7 +79,7 @@ public class FSResultSetTest {
 		tableDefinition.setFormat("csv");
 		tableDefinition.setColumns(Arrays.asList(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19));
 
-		FSResultSet rs = new FSResultSet(tableDefinition, null);
+		FSResultSet rs = new FSResultSet(null, tableDefinition, null);
 		rs.setCurrentRow(new String[]{"string", "1", "2", "1.1", "2020/10/10", "12:30:02", "2019/01/01 05:23:55", "2.2", "true", "3.141592653589793238462643383279502884197169399375105820974944592307816406286", "bytes", "32", "6", "1566415210208", "100000", "1566415210208", "2020#05#16", "23@45", "22::33::23-1980#05#01"});
 
 
@@ -138,7 +138,7 @@ public class FSResultSetTest {
 	@Test(expected = SQLException.class)
 	public void notExistPosition() throws Exception {
 
-		FSResultSet rs = new FSResultSet(tableDefTest(), null);
+		FSResultSet rs = new FSResultSet(null, tableDefTest(), null);
 		rs.setCurrentRow(new String[]{"string"});
 
 		rs.getLong(2);
@@ -147,7 +147,7 @@ public class FSResultSetTest {
 	@Test(expected = SQLException.class)
 	public void notExistLabel() throws Exception {
 
-		FSResultSet rs = new FSResultSet(tableDefTest(), null);
+		FSResultSet rs = new FSResultSet(null, tableDefTest(), null);
 		rs.setCurrentRow(new String[]{"string"});
 
 		rs.getString("notexist");
@@ -156,7 +156,7 @@ public class FSResultSetTest {
 	@Test(expected = SQLException.class)
 	public void wrongType() throws Exception {
 
-		FSResultSet rs = new FSResultSet(tableDefTest(), null);
+		FSResultSet rs = new FSResultSet(null, tableDefTest(), null);
 		rs.setCurrentRow(new String[]{"string"});
 		rs.getByte("first");
 	}
@@ -164,7 +164,7 @@ public class FSResultSetTest {
 	@Test
 	public void empty() throws Exception {
 
-		FSResultSet rs = new FSResultSet(tableDefTest(), null);
+		FSResultSet rs = new FSResultSet(null, tableDefTest(), null);
 		rs.setCurrentRow(new String[]{""});
 
 
