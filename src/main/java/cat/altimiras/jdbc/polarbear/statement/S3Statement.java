@@ -5,23 +5,25 @@ import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 import cat.altimiras.jdbc.polarbear.def.TableManager;
 import cat.altimiras.jdbc.polarbear.query.Query;
 import cat.altimiras.jdbc.polarbear.query.QueryParser;
-import cat.altimiras.jdbc.polarbear.resultset.FSResultSet;
+import cat.altimiras.jdbc.polarbear.resultset.S3ResultSet;
+import software.amazon.awssdk.services.s3.S3Client;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-public class FSStatement extends PolarBearStatement {
+public class S3Statement extends PolarBearStatement {
 
-	private final Path base;
+	private final S3Client s3Client;
+	private final String bucket;
 
-	public FSStatement(String target, TableManager tableManager, QueryParser queryParser, Connection connection) {
+	public S3Statement(String target, TableManager tableManager, QueryParser queryParser, Connection connection, S3Client s3Client, String bucket) {
 		super(target, tableManager, queryParser, connection);
-		this.base = Paths.get(target);
+		this.s3Client = s3Client;
+		this.bucket = bucket;
 	}
+
 
 	@Override
 	public ResultSet executeQuery(String sql) throws SQLException {
@@ -29,6 +31,7 @@ public class FSStatement extends PolarBearStatement {
 		Query query = this.queryParser.parse(sql);
 
 		TableDefinition tableDefinition = this.tableManager.getTable(query.getTable());
+
 		LocalDateTime from = query.getTsLowerLimit() == null ? tableDefinition.getSince() : query.getTsLowerLimit();
 		LocalDateTime to = query.getTsUpLimit() == null ? LocalDateTime.now() : query.getTsUpLimit();
 
@@ -36,15 +39,14 @@ public class FSStatement extends PolarBearStatement {
 			throw new PolarBearException("Time range is not valid");
 		}
 
-		DirsIterator dirsIterator = new DirsIterator(
-				base.resolve(query.getTable()),
+		S3FilesIterator s3FilesIterator = new S3FilesIterator(
+				s3Client,
+				bucket,
+				tableDefinition.getName(),
 				from,
 				to,
-				tableDefinition.getPartitionsFormat(),
-				tableDefinition.getStep(),
-				tableDefinition.getNotFoundMaxLimit());
-
-		resultSet = new FSResultSet(query.getFields(), tableDefinition, dirsIterator, this);
-		return resultSet;
+				tableDefinition.getPartitionsFormat()
+		);
+		return new S3ResultSet(query.getFields(), tableDefinition,  s3FilesIterator, this);
 	}
 }

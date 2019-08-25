@@ -15,7 +15,7 @@ public class DirsIterator implements Iterator<Path> {
 
 	private final static Logger log = LoggerFactory.getLogger(DirsIterator.class);
 
-	private final static DateTimeFormatter pathGenerator = DateTimeFormatter.ofPattern("YYYY/MM/dd/HH/mm");
+	private final DateTimeFormatter pathGenerator;
 
 	private final Path base;
 
@@ -26,7 +26,7 @@ public class DirsIterator implements Iterator<Path> {
 
 	private Path next;
 
-	public DirsIterator(Path base, LocalDateTime from, LocalDateTime to, int step, int notFoundMaxLimit) {
+	public DirsIterator(Path base, LocalDateTime from, LocalDateTime to, String pathPattern,  int step, int notFoundMaxLimit) {
 
 		if (step < 0) {
 			throw new IllegalArgumentException("step must be positive");
@@ -41,6 +41,8 @@ public class DirsIterator implements Iterator<Path> {
 		if (from.isAfter(to)) {
 			throw new IllegalArgumentException("from" + from + " must be before to:" + to);
 		}
+
+		this.pathGenerator = DateTimeFormatter.ofPattern(pathPattern);
 
 		this.current = from;
 		this.to = to;

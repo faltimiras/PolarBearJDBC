@@ -30,7 +30,10 @@ public class FSResultSetTest {
 
 		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test-table1"),
 				LocalDateTime.of(2019, 01, 01, 12, 58),
-				LocalDateTime.of(2019, 01, 01, 13, 05), 1, 5);
+				LocalDateTime.of(2019, 01, 01, 13, 05),
+				"YYYY/MM/dd/HH/mm",
+				1,
+				5);
 
 		FSResultSet fsResultSet = new FSResultSet(null, tableDefTest(), dirsIterator, statement );
 
@@ -184,7 +187,10 @@ public class FSResultSetTest {
 
 		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test-table1"),
 				LocalDateTime.of(2019, 01, 01, 12, 58),
-				LocalDateTime.of(2019, 01, 01, 13, 05), 1, 5);
+				LocalDateTime.of(2019, 01, 01, 13, 05),
+				"YYYY/MM/dd/HH/mm",
+				1,
+				5);
 
 		FSResultSet fsResultSet = new FSResultSet(null, tableDefTest(), dirsIterator, statement );
 

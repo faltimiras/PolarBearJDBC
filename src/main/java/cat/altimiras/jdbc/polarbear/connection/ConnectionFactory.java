@@ -40,8 +40,7 @@ public class ConnectionFactory {
 
 			switch (provider) {
 				case "s3":
-					throw new UnsupportedOperationException();
-					//return new S3Connection(target, user, psw);
+					return new S3Connection(target, user, psw);
 				case "fs":
 					return new FSConnection(target);
 				case "gcs":

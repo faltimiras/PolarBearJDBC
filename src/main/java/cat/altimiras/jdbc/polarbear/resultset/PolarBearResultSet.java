@@ -6,11 +6,13 @@ import cat.altimiras.jdbc.polarbear.format.RowFormatter;
 import cat.altimiras.jdbc.polarbear.format.RowFormatterFactory;
 import cat.altimiras.jdbc.polarbear.query.Field;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,8 @@ public abstract class PolarBearResultSet implements ResultSet {
 	protected final RowFormatter rowFormatter;
 	protected final List<Field> fields;
 	protected final Statement statement;
+
+	protected String[] row;
 
 	public PolarBearResultSet(List<Field> fields, TableDefinition tableDefinition, Statement statement) throws PolarBearException {
 		this.tableDefinition = tableDefinition;
@@ -33,6 +37,331 @@ public abstract class PolarBearResultSet implements ResultSet {
 	public Statement getStatement() throws SQLException {
 		return statement;
 	}
+
+	@Override
+	public String getString(int columnIndex) throws SQLException {
+		try {
+			return row[columnIndex - 1];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		}
+	}
+
+	@Override
+	public boolean getBoolean(int columnIndex) throws SQLException {
+		try {
+			return Boolean.valueOf(row[columnIndex - 1]);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		}
+	}
+
+	@Override
+	public byte getByte(int columnIndex) throws SQLException {
+		try {
+			return Byte.valueOf(row[columnIndex - 1]);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public short getShort(int columnIndex) throws SQLException {
+		try {
+			return Short.valueOf(row[columnIndex - 1]);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public int getInt(int columnIndex) throws SQLException {
+		try {
+			return Integer.valueOf(row[columnIndex - 1]);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public long getLong(int columnIndex) throws SQLException {
+		try {
+			return Long.valueOf(row[columnIndex - 1]);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public float getFloat(int columnIndex) throws SQLException {
+		try {
+			return Float.valueOf(row[columnIndex - 1]);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public double getDouble(int columnIndex) throws SQLException {
+		try {
+			return Double.valueOf(row[columnIndex - 1]);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
+		try {
+			return BigDecimal.valueOf(Long.valueOf(row[columnIndex - 1]), scale);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public byte[] getBytes(int columnIndex) throws SQLException {
+		try {
+			return row[columnIndex - 1].getBytes();
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		}
+	}
+
+	@Override
+	public Date getDate(int columnIndex) throws SQLException {
+		try {
+			if (tableDefinition.getColumns().get(columnIndex - 1).getUnixtime()) {
+				return new Date(Long.valueOf(row[columnIndex - 1]));
+			} else {
+				SimpleDateFormat formatter = tableDefinition.getColumns().get(columnIndex - 1).getDateFormat();
+				return new Date(formatter.parse(row[columnIndex - 1]).getTime());
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+
+		} catch (Exception e) {
+			throw new SQLException("Field is not a Date", e);
+		}
+	}
+
+	@Override
+	public Time getTime(int columnIndex) throws SQLException {
+		try {
+			if (tableDefinition.getColumns().get(columnIndex - 1).getUnixtime()) {
+				return new Time(Long.valueOf(row[columnIndex - 1]));
+			} else {
+				SimpleDateFormat formatter = tableDefinition.getColumns().get(columnIndex - 1).getTimeFormat();
+				return new Time(formatter.parse(row[columnIndex - 1]).getTime());
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+
+		} catch (Exception e) {
+			throw new SQLException("Field is not a Time", e);
+		}
+	}
+
+	@Override
+	public Timestamp getTimestamp(int columnIndex) throws SQLException {
+		try {
+			if (tableDefinition.getColumns().get(columnIndex - 1).getUnixtime()) {
+				return new Timestamp(Long.valueOf(row[columnIndex - 1]));
+			} else {
+				SimpleDateFormat formatter = tableDefinition.getColumns().get(columnIndex - 1).getTimestampFormat();
+				return new Timestamp(formatter.parse(row[columnIndex - 1]).getTime());
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		} catch (Exception e) {
+			throw new SQLException("Field is not a Timestamp", e);
+		}
+	}
+
+	@Override
+	public InputStream getBinaryStream(int columnIndex) throws SQLException {
+		try {
+			return new ByteArrayInputStream(row[columnIndex - 1].getBytes());
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		}
+	}
+
+	@Override
+	public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
+		try {
+			return new BigDecimal(row[columnIndex - 1]);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+
+	@Override
+	public String getString(String columnLabel) throws SQLException {
+		try {
+			return row[tableDefinition.getPosition(columnLabel)];
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		}
+	}
+
+	@Override
+	public boolean getBoolean(String columnLabel) throws SQLException {
+		try {
+			return Boolean.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		}
+	}
+
+	@Override
+	public byte getByte(String columnLabel) throws SQLException {
+		try {
+			return Byte.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public short getShort(String columnLabel) throws SQLException {
+		try {
+			return Short.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public int getInt(String columnLabel) throws SQLException {
+		try {
+			return Integer.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public long getLong(String columnLabel) throws SQLException {
+		try {
+			return Long.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public float getFloat(String columnLabel) throws SQLException {
+		try {
+			return Float.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public double getDouble(String columnLabel) throws SQLException {
+		try {
+			return Double.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
+		try {
+			return BigDecimal.valueOf(Long.valueOf(row[tableDefinition.getPosition(columnLabel)]), scale);
+
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+	@Override
+	public byte[] getBytes(String columnLabel) throws SQLException {
+		try {
+			return row[tableDefinition.getPosition(columnLabel)].getBytes();
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		}
+	}
+
+	@Override
+	public Date getDate(String columnLabel) throws SQLException {
+		int columnIndex = tableDefinition.getPosition(columnLabel);
+		return getDate(columnIndex + 1);
+	}
+
+	@Override
+	public Time getTime(String columnLabel) throws SQLException {
+		int columnIndex = tableDefinition.getPosition(columnLabel);
+		return getTime(columnIndex + 1);
+	}
+
+	@Override
+	public Timestamp getTimestamp(String columnLabel) throws SQLException {
+		int columnIndex = tableDefinition.getPosition(columnLabel);
+		return getTimestamp(columnIndex + 1);
+	}
+
+	@Override
+	public InputStream getBinaryStream(String columnLabel) throws SQLException {
+		return new ByteArrayInputStream(row[tableDefinition.getPosition(columnLabel)].getBytes());
+	}
+
+	@Override
+	public int findColumn(String columnLabel) throws SQLException {
+		return tableDefinition.getPosition(columnLabel);
+	}
+
+	@Override
+	public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
+		try {
+			return new BigDecimal(row[tableDefinition.getPosition(columnLabel)]);
+		} catch (NullPointerException e) {
+			throw new SQLException("Field does not exit");
+		} catch (NumberFormatException e) {
+			throw new SQLException("Field is not a number");
+		}
+	}
+
+
+
+
+
+
 
 	@Override
 	public boolean wasNull() throws SQLException {
@@ -50,22 +379,12 @@ public abstract class PolarBearResultSet implements ResultSet {
 	}
 
 	@Override
-	public InputStream getBinaryStream(int columnIndex) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public InputStream getAsciiStream(String columnLabel) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public InputStream getUnicodeStream(String columnLabel) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public InputStream getBinaryStream(String columnLabel) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 

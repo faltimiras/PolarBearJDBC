@@ -1,4 +1,4 @@
-package cat.altimiras.jdbc.polarbear.fs;
+package cat.altimiras.jdbc.polarbear.test;
 
 import org.junit.Test;
 
