@@ -47,43 +47,44 @@ public class Column {
 	}
 
 	public SimpleDateFormat getDateFormat() {
-		if (dateFormatter == null){
+		if (dateFormatter == null) {
 			dateFormatter = new SimpleDateFormat(dateFormat);
 		}
 		return dateFormatter;
-	}
-
-	public SimpleDateFormat getTimeFormat() {
-		if (timeFormatter == null){
-			timeFormatter = new SimpleDateFormat(timeFormat);
-		}
-		return timeFormatter;
-	}
-
-	public SimpleDateFormat getTimestampFormat() {
-		if (timestampFormatter == null){
-			timestampFormatter = new SimpleDateFormat(timestampFormat);
-		}
-		return timestampFormatter;
-	}
-
-	public Boolean getUnixtime() {
-		return isUnixtime;
 	}
 
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
 
+	public SimpleDateFormat getTimeFormat() {
+		if (timeFormatter == null) {
+			timeFormatter = new SimpleDateFormat(timeFormat);
+		}
+		return timeFormatter;
+	}
+
 	public void setTimeFormat(String timeFormat) {
 		this.timeFormat = timeFormat;
+	}
+
+	public SimpleDateFormat getTimestampFormat() {
+		if (timestampFormatter == null) {
+			timestampFormatter = new SimpleDateFormat(timestampFormat);
+		}
+		return timestampFormatter;
 	}
 
 	public void setTimestampFormat(String timestampFormat) {
 		this.timestampFormat = timestampFormat;
 	}
 
+	public Boolean getUnixtime() {
+		return isUnixtime;
+	}
+
 	public void setUnixtime(Boolean unixtime) {
 		isUnixtime = unixtime;
 	}
+
 }

@@ -18,15 +18,13 @@ public class DirsIterator implements Iterator<Path> {
 	private final DateTimeFormatter pathGenerator;
 
 	private final Path base;
-
-	private LocalDateTime current;
 	private final LocalDateTime to;
 	private final int step;
 	private final int notFoundMaxLimit;
-
+	private LocalDateTime current;
 	private Path next;
 
-	public DirsIterator(Path base, LocalDateTime from, LocalDateTime to, String pathPattern,  int step, int notFoundMaxLimit) {
+	public DirsIterator(Path base, LocalDateTime from, LocalDateTime to, String pathPattern, int step, int notFoundMaxLimit) {
 
 		if (step < 0) {
 			throw new IllegalArgumentException("step must be positive");

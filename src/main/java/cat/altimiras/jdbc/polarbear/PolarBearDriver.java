@@ -31,7 +31,7 @@ public class PolarBearDriver implements Driver {
 	}
 
 	public Connection connect(String url, Properties info) throws SQLException {
-		if (url == null || url.isEmpty()){
+		if (url == null || url.isEmpty()) {
 			throw new PolarBearException("connection is null");
 		}
 

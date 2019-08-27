@@ -2,7 +2,6 @@ package cat.altimiras.jdbc.polarbear.statement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -26,10 +25,8 @@ public class S3FilesIterator implements Iterator<InputStream> {
 	private final String table;
 
 	private final DateTimeFormatter pathGenerator;
-
-	private LocalDateTime current;
 	private final LocalDateTime to;
-
+	private LocalDateTime current;
 	private Iterator<S3Object> it;
 
 	public S3FilesIterator(S3Client s3Client, String bucket, String table, LocalDateTime from, LocalDateTime to, String pathPattern) {
@@ -61,6 +58,16 @@ public class S3FilesIterator implements Iterator<InputStream> {
 		it = files.contents().iterator();
 	}
 
+	private String greatestCommonPrefix(String a, String b) {
+		int minLength = Math.min(a.length(), b.length());
+		for (int i = 0; i < minLength; i++) {
+			if (a.charAt(i) != b.charAt(i)) {
+				return a.substring(0, i);
+			}
+		}
+		return a.substring(0, minLength);
+	}
+
 	@Override
 	public boolean hasNext() {
 		return it.hasNext();
@@ -84,15 +91,5 @@ public class S3FilesIterator implements Iterator<InputStream> {
 						.key(s3Object.key()).build(),
 				ResponseTransformer.toInputStream());
 		return raw;
-	}
-
-	private String greatestCommonPrefix(String a, String b) {
-		int minLength = Math.min(a.length(), b.length());
-		for (int i = 0; i < minLength; i++) {
-			if (a.charAt(i) != b.charAt(i)) {
-				return a.substring(0, i);
-			}
-		}
-		return a.substring(0, minLength);
 	}
 }

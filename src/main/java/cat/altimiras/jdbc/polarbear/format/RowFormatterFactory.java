@@ -13,6 +13,8 @@ public class RowFormatterFactory {
 
 	static {
 		formatters.put("csv", CSVFormatter.class); //TODO: lib in classpath should be able to add formats
+		formatters.put("json", JsonlFormatter.class);
+		formatters.put("jsonl", JsonlFormatter.class);
 	}
 
 	public static RowFormatter get(String format, TableDefinition tableDefinition) throws PolarBearException {

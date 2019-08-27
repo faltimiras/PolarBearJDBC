@@ -21,7 +21,7 @@ public class TableDefinition {
 	private LocalDateTime since;
 	private int step;
 	private int notFoundMaxLimit;
-	private boolean ignoreWrongRowData=true;
+	private boolean ignoreWrongRowData = true;
 
 	private String separator = ","; //only csv format
 

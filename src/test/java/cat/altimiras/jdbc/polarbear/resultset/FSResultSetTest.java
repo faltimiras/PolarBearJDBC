@@ -52,6 +52,18 @@ public class FSResultSetTest {
 		assertFalse(fsResultSet.next());
 	}
 
+	private TableDefinition tableDefTest() {
+
+		TableDefinition tableDefinition = new TableDefinition();
+		tableDefinition.setName("test");
+		tableDefinition.setFormat("csv");
+
+		Column column = new Column("first", "string");
+		tableDefinition.setColumns(Arrays.asList(column));
+
+		return tableDefinition;
+	}
+
 	@Test
 	public void types() throws Exception {
 
@@ -240,18 +252,6 @@ public class FSResultSetTest {
 
 		assertTrue(fsResultSet.next());
 		assertEquals("1259-1-1", fsResultSet.getString("alias"));
-	}
-
-	private TableDefinition tableDefTest() {
-
-		TableDefinition tableDefinition = new TableDefinition();
-		tableDefinition.setName("test");
-		tableDefinition.setFormat("csv");
-
-		Column column = new Column("first", "string");
-		tableDefinition.setColumns(Arrays.asList(column));
-
-		return tableDefinition;
 	}
 
 }

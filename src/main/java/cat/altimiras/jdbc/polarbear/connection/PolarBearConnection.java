@@ -2,7 +2,6 @@ package cat.altimiras.jdbc.polarbear.connection;
 
 import cat.altimiras.jdbc.polarbear.def.TableManager;
 import cat.altimiras.jdbc.polarbear.query.QueryParser;
-import cat.altimiras.jdbc.polarbear.statement.PolarBearStatement;
 
 import java.sql.*;
 import java.util.Map;
@@ -43,11 +42,17 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
+	public <T> T unwrap(Class<T> iface) throws SQLException {
+		return null;
+	}	@Override
 	public void setAutoCommit(boolean autoCommit) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
+	public boolean isWrapperFor(Class<?> iface) throws SQLException {
+		return false;
+	}	@Override
 	public boolean getAutoCommit() throws SQLException {
 		return false;
 	}
@@ -282,13 +287,7 @@ public abstract class PolarBearConnection implements Connection {
 		return 0;
 	}
 
-	@Override
-	public <T> T unwrap(Class<T> iface) throws SQLException {
-		return null;
-	}
 
-	@Override
-	public boolean isWrapperFor(Class<?> iface) throws SQLException {
-		return false;
-	}
+
+
 }

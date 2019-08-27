@@ -42,7 +42,7 @@ public class QueryParser {
 	 */
 	private List<Field> fields(String fields) throws PolarBearException {
 
-		if (fields.trim().equals("*")){
+		if (fields.trim().equals("*")) {
 			return null;
 		}
 
@@ -67,10 +67,12 @@ public class QueryParser {
 	}
 
 	//TODO support clever queries -> antlr
+
 	/**
-	 *
 	 * @param sql ts => 1 | ts < 2 | ts > 122 and ts <= 555
+	 *
 	 * @return
+	 *
 	 * @throws PolarBearException
 	 */
 	private Limits tsLimits(String sql) throws PolarBearException {
@@ -79,14 +81,14 @@ public class QueryParser {
 
 		Limits limits = new Limits();
 
-		if (parts.length > 2){
+		if (parts.length > 2) {
 			throw new PolarBearException("Invalid time limits on WHERE. Only supported simple time range definition with AND and <,> Close to: " + sql);
 		}
 
 		String tsField = null;
-		for(String s : parts){
+		for (String s : parts) {
 
-			Matcher matcher =  tsFieldStructure.matcher(s.trim());
+			Matcher matcher = tsFieldStructure.matcher(s.trim());
 			if (matcher.find()) {
 				int a = 0;
 				/*if (matcher.groupCount() != 4) {
@@ -94,22 +96,22 @@ public class QueryParser {
 				}*/
 				if (tsField == null) {
 					tsField = matcher.group(1);
-				} else if (!tsField.equals( matcher.group(1))){
+				} else if (!tsField.equals(matcher.group(1))) {
 					throw new PolarBearException("Filtering fields are not equals");
 				}
 
-				switch (matcher.group(2)){
+				switch (matcher.group(2)) {
 					case "<":
-						limits.upper = DateFormatter.parse( matcher.group(3)).minus(1, ChronoUnit.MINUTES);
+						limits.upper = DateFormatter.parse(matcher.group(3)).minus(1, ChronoUnit.MINUTES);
 						break;
 					case "<=":
-						limits.upper = DateFormatter.parse( matcher.group(3));
+						limits.upper = DateFormatter.parse(matcher.group(3));
 						break;
 					case ">":
-						limits.lower = DateFormatter.parse( matcher.group(3)).plus(1, ChronoUnit.MINUTES);
+						limits.lower = DateFormatter.parse(matcher.group(3)).plus(1, ChronoUnit.MINUTES);
 						break;
-					case "=>" :
-						limits.lower = DateFormatter.parse( matcher.group(3));
+					case "=>":
+						limits.lower = DateFormatter.parse(matcher.group(3));
 						break;
 					default:
 						throw new PolarBearException("Comparator not supported. only >,>=,<,<=");
@@ -124,8 +126,7 @@ public class QueryParser {
 					throw new PolarBearException("Comparator not supported. only > <");
 				}*/
 
-			}
-			else {
+			} else {
 				throw new PolarBearException("Invalid time limit close to: " + sql);
 			}
 

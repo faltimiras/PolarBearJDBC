@@ -2,9 +2,7 @@ package cat.altimiras.jdbc.polarbear.format;
 
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
-import cat.altimiras.jdbc.polarbear.query.Field;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,7 +24,7 @@ public class CSVFormatter extends RowFormatter {
 	}
 
 	@Override
-	public Object[] parse(String raw,  Map<String, Integer> queryFieldsByName) throws PolarBearException {
+	public Object[] parse(String raw, Map<String, Integer> queryFieldsByName) throws PolarBearException {
 		if (raw == null) {
 			return null;
 		}
@@ -50,7 +48,7 @@ public class CSVFormatter extends RowFormatter {
 
 		String[] filter = new String[queryFieldsByName.size()];
 		int i = 0;
-		for(Map.Entry<String, Integer> e : queryFieldsByName.entrySet()){
+		for (Map.Entry<String, Integer> e : queryFieldsByName.entrySet()) {
 			int pos = e.getValue();
 			filter[i] = values[pos];
 			i++;

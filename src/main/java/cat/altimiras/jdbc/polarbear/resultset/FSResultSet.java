@@ -57,7 +57,15 @@ public class FSResultSet extends PolarBearResultSet {
 		}
 	}
 
-
+	@Override
+	public void close() throws SQLException {
+		if (filesInDir != null) {
+			filesInDir.close();
+		}
+		if (rows != null) {
+			rows.close();
+		}
+	}
 
 	private boolean nextLine() throws PolarBearException {
 		if (itRows == null || !itRows.hasNext()) {
@@ -98,16 +106,6 @@ public class FSResultSet extends PolarBearResultSet {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public void close() throws SQLException {
-		if (filesInDir != null) {
-			filesInDir.close();
-		}
-		if (rows != null) {
-			rows.close();
-		}
 	}
 
 	void setCurrentRow(String[] row) {

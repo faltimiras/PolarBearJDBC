@@ -47,6 +47,6 @@ public class S3Statement extends PolarBearStatement {
 				to,
 				tableDefinition.getPartitionsFormat()
 		);
-		return new S3ResultSet(query.getFields(), tableDefinition,  s3FilesIterator, this);
+		return new S3ResultSet(query.getFields(), tableDefinition, s3FilesIterator, this);
 	}
 }

@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class FSConnection extends  PolarBearConnection{
+public class FSConnection extends PolarBearConnection {
 
 	public FSConnection(String target) throws PolarBearException {
 		super(target);
@@ -24,7 +24,7 @@ public class FSConnection extends  PolarBearConnection{
 			}
 			this.tableManager = new FSTableManager(basePath);
 
-		} catch (InvalidPathException e){
+		} catch (InvalidPathException e) {
 			throw new PolarBearException(target + "is not a file system path", e);
 		} catch (SecurityException e) {
 			throw new PolarBearException(target + "is not readable", e);

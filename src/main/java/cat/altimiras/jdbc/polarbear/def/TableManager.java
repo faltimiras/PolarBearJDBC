@@ -22,8 +22,7 @@ public abstract class TableManager {
 				definitions.put(name, definition);
 			}
 			return definition;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new PolarBearException("Error retrieving table metadata", e);
 		}
 	}

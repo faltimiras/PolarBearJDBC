@@ -31,12 +31,12 @@ public class DirsIteratorTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void validateMaxLimitPostive() throws Exception {
-		new DirsIterator(Paths.get("/"), before, after,pattern, 1, -8);
+		new DirsIterator(Paths.get("/"), before, after, pattern, 1, -8);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void validateAfterBefore() throws Exception {
-		new DirsIterator(Paths.get("/"), after, before, pattern,1, 5);
+		new DirsIterator(Paths.get("/"), after, before, pattern, 1, 5);
 	}
 
 	@Test
@@ -46,7 +46,7 @@ public class DirsIteratorTest {
 		when(Files.isDirectory(Mockito.any())).thenReturn(true);
 		when(Files.exists(Mockito.any())).thenReturn(true);
 
-		DirsIterator iterator = new DirsIterator(Paths.get("/"), before, after, pattern,1, 5);
+		DirsIterator iterator = new DirsIterator(Paths.get("/"), before, after, pattern, 1, 5);
 
 		assertTrue(iterator.hasNext());
 		assertEquals("/2019/01/01/12/55", iterator.next().toString());
@@ -68,7 +68,7 @@ public class DirsIteratorTest {
 		when(Files.isDirectory(Mockito.any())).thenReturn(true);
 		when(Files.exists(Mockito.any())).thenReturn(true);
 
-		DirsIterator iterator = new DirsIterator(Paths.get("/"), before, after, pattern,2, 5);
+		DirsIterator iterator = new DirsIterator(Paths.get("/"), before, after, pattern, 2, 5);
 
 		assertTrue(iterator.hasNext());
 		assertEquals("/2019/01/01/12/55", iterator.next().toString());
@@ -87,7 +87,7 @@ public class DirsIteratorTest {
 		when(Files.exists(Mockito.any())).thenReturn(true, true, true, false);
 
 		LocalDateTime after = LocalDateTime.of(2020, 1, 1, 12, 59);
-		DirsIterator iterator = new DirsIterator(Paths.get("/"), before, after,pattern, 2, 5);
+		DirsIterator iterator = new DirsIterator(Paths.get("/"), before, after, pattern, 2, 5);
 
 		assertTrue(iterator.hasNext());
 		assertEquals("/2019/01/01/12/55", iterator.next().toString());
@@ -105,7 +105,7 @@ public class DirsIteratorTest {
 		when(Files.isDirectory(Mockito.any())).thenReturn(true);
 		when(Files.exists(Mockito.any())).thenReturn(true, false, false, false, true);
 
-		DirsIterator iterator = new DirsIterator(Paths.get("/"), before, after, pattern,1, 4);
+		DirsIterator iterator = new DirsIterator(Paths.get("/"), before, after, pattern, 1, 4);
 
 		assertTrue(iterator.hasNext());
 		assertEquals("/2019/01/01/12/55", iterator.next().toString());

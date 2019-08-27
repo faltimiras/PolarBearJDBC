@@ -55,6 +55,17 @@ public class S3ResultSet extends PolarBearResultSet {
 		}
 	}
 
+	@Override
+	public void close() throws SQLException {
+		if (reader != null) {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				throw new PolarBearException("Error closing resources", e);
+			}
+		}
+	}
+
 	private boolean nextLine() throws PolarBearException {
 		try {
 			if (reader != null) {
@@ -71,7 +82,7 @@ public class S3ResultSet extends PolarBearResultSet {
 			}
 			return false;
 
-		} catch (Exception e){
+		} catch (Exception e) {
 			log.error("Error getting next value", e);
 			throw new PolarBearException("Error getting next value", e);
 		}
@@ -84,21 +95,9 @@ public class S3ResultSet extends PolarBearResultSet {
 			InputStream inputStream = s3FilesIterator.next();
 			if (inputStream == null) {
 				return nextFile();
-			}
-			else {
+			} else {
 				reader = new BufferedReader(new InputStreamReader(inputStream));
 				return nextLine();
-			}
-		}
-	}
-
-	@Override
-	public void close() throws SQLException {
-		if (reader != null){
-			try {
-				reader.close();
-			} catch (IOException e) {
-				throw new PolarBearException("Error closing resources", e);
 			}
 		}
 	}

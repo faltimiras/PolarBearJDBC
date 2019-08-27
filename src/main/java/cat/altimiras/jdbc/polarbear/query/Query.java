@@ -30,15 +30,15 @@ public class Query {
 		return tsLowerLimit;
 	}
 
+	public void setTsLowerLimit(LocalDateTime tsLowerLimit) {
+		this.tsLowerLimit = tsLowerLimit;
+	}
+
 	public LocalDateTime getTsUpLimit() {
 		return tsUpLimit;
 	}
 
 	public void setTsUpLimit(LocalDateTime tsUpLimit) {
 		this.tsUpLimit = tsUpLimit;
-	}
-
-	public void setTsLowerLimit(LocalDateTime tsLowerLimit) {
-		this.tsLowerLimit = tsLowerLimit;
 	}
 }
