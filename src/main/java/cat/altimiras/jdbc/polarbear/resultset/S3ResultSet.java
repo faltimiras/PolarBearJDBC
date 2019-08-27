@@ -25,8 +25,8 @@ public class S3ResultSet extends PolarBearResultSet {
 	private int rowsFetched = 0;
 
 
-	public S3ResultSet(List<Field> fields, TableDefinition tableDefinition, S3FilesIterator s3FilesIterator, Statement statement) throws PolarBearException {
-		super(fields, tableDefinition, statement);
+	public S3ResultSet(List<Field> queryFields, TableDefinition tableDefinition, S3FilesIterator s3FilesIterator, Statement statement) throws PolarBearException {
+		super(queryFields, tableDefinition, statement);
 		this.s3FilesIterator = s3FilesIterator;
 	}
 
@@ -65,7 +65,7 @@ public class S3ResultSet extends PolarBearResultSet {
 					log.debug("Empty line detected. Ignoring it");
 					return nextLine();
 				} else {
-					row = (String[]) rowFormatter.parse(rowRaw, this.fields);
+					row = (String[]) rowFormatter.parse(rowRaw, this.queryFieldsByNameInFile);
 					return true;
 				}
 			}

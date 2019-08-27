@@ -106,13 +106,15 @@ public class TableDefinition {
 		this.separator = separator;
 	}
 
-	public int getPosition(String name) {
+	public Map<String, Integer> getColumnsByName() {
 		if (columnPosition == null) {
 			columnPosition = new HashMap<>(columns.size());
 			for (int i = 0; i < columns.size(); i++) {
 				columnPosition.put(columns.get(i).getName(), i);
 			}
 		}
-		return columnPosition.get(name);
+		return columnPosition;
 	}
+
+
 }

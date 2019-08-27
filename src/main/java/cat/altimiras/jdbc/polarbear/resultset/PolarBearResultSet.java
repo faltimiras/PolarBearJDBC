@@ -14,6 +14,8 @@ import java.net.URL;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,16 +23,34 @@ public abstract class PolarBearResultSet implements ResultSet {
 
 	protected final TableDefinition tableDefinition;
 	protected final RowFormatter rowFormatter;
-	protected final List<Field> fields;
+	protected final List<Field> queryFields;
 	protected final Statement statement;
+	// position in the raw file by name
+	protected Map<String, Integer> queryFieldsByNameInFile;
+	// position in the row by name. row can contain less fields than in file, due to select field1... reduce number of fields
+	protected Map<String, Integer> queryFieldsByNameInRow;
 
 	protected String[] row;
 
-	public PolarBearResultSet(List<Field> fields, TableDefinition tableDefinition, Statement statement) throws PolarBearException {
+	public PolarBearResultSet(List<Field> queryFields, TableDefinition tableDefinition, Statement statement) throws PolarBearException {
 		this.tableDefinition = tableDefinition;
 		this.rowFormatter = RowFormatterFactory.get(tableDefinition.getFormat(), tableDefinition);
-		this.fields = fields;
+		this.queryFields = queryFields;
 		this.statement = statement;
+		byIdentifier(queryFields);
+	}
+
+	private void  byIdentifier(List<Field> queryFields) {
+
+		Map<String, Integer> tableColumnsByName = tableDefinition.getColumnsByName();
+		queryFieldsByNameInFile = new LinkedHashMap(queryFields.size());
+		queryFieldsByNameInRow = new HashMap<>(queryFields.size());
+		for (int i = 0; i < queryFields.size(); i++) {
+			Field field = queryFields.get(i);
+			int pos = tableColumnsByName.get(field.getName());
+			queryFieldsByNameInFile.put(field.getAlias() == null ? field.getName() : field.getAlias(), pos);
+			queryFieldsByNameInRow.put(field.getAlias() == null ? field.getName() : field.getAlias(), i);
+		}
 	}
 
 	@Override
@@ -216,7 +236,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public String getString(String columnLabel) throws SQLException {
 		try {
-			return row[tableDefinition.getPosition(columnLabel)];
+			return row[queryFieldsByNameInRow.get(columnLabel)];
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		}
@@ -225,7 +245,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public boolean getBoolean(String columnLabel) throws SQLException {
 		try {
-			return Boolean.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+			return Boolean.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		}
@@ -234,7 +254,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public byte getByte(String columnLabel) throws SQLException {
 		try {
-			return Byte.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+			return Byte.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -245,7 +265,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public short getShort(String columnLabel) throws SQLException {
 		try {
-			return Short.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+			return Short.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -256,7 +276,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public int getInt(String columnLabel) throws SQLException {
 		try {
-			return Integer.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+			return Integer.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -267,7 +287,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public long getLong(String columnLabel) throws SQLException {
 		try {
-			return Long.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+			return Long.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -278,7 +298,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public float getFloat(String columnLabel) throws SQLException {
 		try {
-			return Float.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+			return Float.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -289,7 +309,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public double getDouble(String columnLabel) throws SQLException {
 		try {
-			return Double.valueOf(row[tableDefinition.getPosition(columnLabel)]);
+			return Double.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -300,7 +320,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
 		try {
-			return BigDecimal.valueOf(Long.valueOf(row[tableDefinition.getPosition(columnLabel)]), scale);
+			return BigDecimal.valueOf(Long.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]), scale);
 
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
@@ -312,7 +332,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public byte[] getBytes(String columnLabel) throws SQLException {
 		try {
-			return row[tableDefinition.getPosition(columnLabel)].getBytes();
+			return row[queryFieldsByNameInRow.get(columnLabel)].getBytes();
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		}
@@ -320,47 +340,42 @@ public abstract class PolarBearResultSet implements ResultSet {
 
 	@Override
 	public Date getDate(String columnLabel) throws SQLException {
-		int columnIndex = tableDefinition.getPosition(columnLabel);
+		int columnIndex = queryFieldsByNameInRow.get(columnLabel);
 		return getDate(columnIndex + 1);
 	}
 
 	@Override
 	public Time getTime(String columnLabel) throws SQLException {
-		int columnIndex = tableDefinition.getPosition(columnLabel);
+		int columnIndex = queryFieldsByNameInRow.get(columnLabel);
 		return getTime(columnIndex + 1);
 	}
 
 	@Override
 	public Timestamp getTimestamp(String columnLabel) throws SQLException {
-		int columnIndex = tableDefinition.getPosition(columnLabel);
+		int columnIndex = queryFieldsByNameInRow.get(columnLabel);
 		return getTimestamp(columnIndex + 1);
 	}
 
 	@Override
 	public InputStream getBinaryStream(String columnLabel) throws SQLException {
-		return new ByteArrayInputStream(row[tableDefinition.getPosition(columnLabel)].getBytes());
+		return new ByteArrayInputStream(row[queryFieldsByNameInRow.get(columnLabel)].getBytes());
 	}
 
 	@Override
 	public int findColumn(String columnLabel) throws SQLException {
-		return tableDefinition.getPosition(columnLabel);
+		return queryFieldsByNameInRow.get(columnLabel);
 	}
 
 	@Override
 	public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
 		try {
-			return new BigDecimal(row[tableDefinition.getPosition(columnLabel)]);
+			return new BigDecimal(row[queryFieldsByNameInRow.get(columnLabel)]);
 		} catch (NullPointerException e) {
 			throw new SQLException("Field does not exit");
 		} catch (NumberFormatException e) {
 			throw new SQLException("Field is not a number");
 		}
 	}
-
-
-
-
-
 
 
 	@Override

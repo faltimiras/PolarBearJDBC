@@ -1,0 +1,23 @@
+{
+  "name" : "test-table2",
+  "format" : "csv",
+  "tsColumnName" : "ts",
+  "partitionsFormat" : "YYYY/MM/",
+  "since" : "2019-01-31 22:00",
+  "step" : 44640,
+  "notFoundMaxLimit" : 5,
+  "columns" : [
+    {
+      "name" : "field",
+      "type" : "string"
+    },
+    {
+      "name" : "field2",
+      "type" : "int"
+    },
+    {
+      "name" : "field3",
+      "type" : "string"
+    }
+  ]
+}

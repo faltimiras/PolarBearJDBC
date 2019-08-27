@@ -5,6 +5,7 @@ import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 import cat.altimiras.jdbc.polarbear.query.Field;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Just split raw row into an array of Strings. It do not convert to the proper type (available in table definition) to avoid to convert values that are not needed.
@@ -25,16 +26,16 @@ public class CSVFormatter extends RowFormatter {
 	}
 
 	@Override
-	public Object[] parse(String raw, List<Field> fields) throws PolarBearException {
+	public Object[] parse(String raw,  Map<String, Integer> queryFieldsByName) throws PolarBearException {
 		if (raw == null) {
 			return null;
 		}
 		String[] values = raw.split(separator, -1);
 		if (values.length == columns) {
-			if (fields == null) { // null means *, return all fields
+			if (queryFieldsByName == null) { // null means *, return all fields
 				return values;
 			} else {
-				return filter(values, fields);
+				return filter(values, queryFieldsByName);
 			}
 		} else {
 			if (ignoreWrongRow) {
@@ -45,12 +46,14 @@ public class CSVFormatter extends RowFormatter {
 		}
 	}
 
-	private String[] filter(String[] values, List<Field> fields) {
+	private String[] filter(String[] values, Map<String, Integer> queryFieldsByName) {
 
-		String[] filter = new String[fields.size()];
-		for (int i = 0; i < fields.size(); i++) {
-			int pos = this.tableDefinition.getPosition(fields.get(i).getName());
+		String[] filter = new String[queryFieldsByName.size()];
+		int i = 0;
+		for(Map.Entry<String, Integer> e : queryFieldsByName.entrySet()){
+			int pos = e.getValue();
 			filter[i] = values[pos];
+			i++;
 		}
 		return filter;
 	}

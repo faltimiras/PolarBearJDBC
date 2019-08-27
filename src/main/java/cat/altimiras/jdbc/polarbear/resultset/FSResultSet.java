@@ -7,17 +7,10 @@ import cat.altimiras.jdbc.polarbear.statement.DirsIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -34,8 +27,8 @@ public class FSResultSet extends PolarBearResultSet {
 	private String rowRaw;
 	private int rowsFetched = 0;
 
-	public FSResultSet(List<Field> fields, TableDefinition tableDefinition, DirsIterator itDirs, Statement statement) throws PolarBearException {
-		super(fields, tableDefinition, statement);
+	public FSResultSet(List<Field> queryFields, TableDefinition tableDefinition, DirsIterator itDirs, Statement statement) throws PolarBearException {
+		super(queryFields, tableDefinition, statement);
 		this.itDirs = itDirs;
 	}
 
@@ -75,7 +68,7 @@ public class FSResultSet extends PolarBearResultSet {
 				log.debug("Empty line detected. Ignoring it");
 				return nextLine();
 			} else {
-				row = (String[]) rowFormatter.parse(rowRaw, this.fields);
+				row = (String[]) rowFormatter.parse(rowRaw, this.queryFieldsByNameInFile);
 				return true;
 			}
 		}
@@ -97,7 +90,7 @@ public class FSResultSet extends PolarBearResultSet {
 		while (itDirs.hasNext()) {
 			Path nextDir = itDirs.next();
 			log.debug("Next dir:{}", nextDir);
-			filesInDir = Files.walk(nextDir, 1).filter(Files::isRegularFile);
+			filesInDir = Files.walk(nextDir, 1).filter(Files::isRegularFile).sorted();
 			itFilesInDir = filesInDir.iterator();
 			if (nextFile()) {
 				rowsFetched++;

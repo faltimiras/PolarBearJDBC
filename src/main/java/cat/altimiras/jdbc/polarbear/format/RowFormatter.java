@@ -5,6 +5,7 @@ import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 import cat.altimiras.jdbc.polarbear.query.Field;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class RowFormatter {
 
@@ -14,6 +15,6 @@ public abstract class RowFormatter {
 		this.tableDefinition = tableDefinition;
 	}
 
-	public abstract Object[] parse (String raw, List<Field> fields) throws PolarBearException;
+	public abstract Object[] parse (String raw, Map<String, Integer> fieldsByName) throws PolarBearException;
 
 }

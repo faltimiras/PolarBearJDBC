@@ -2,17 +2,19 @@ package cat.altimiras.jdbc.polarbear.format;
 
 import cat.altimiras.jdbc.polarbear.def.Column;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
-import cat.altimiras.jdbc.polarbear.query.Field;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 public class CSVFormatterTest {
 
 	@Test
-	public void ok() throws Exception{
+	public void ok() throws Exception {
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
 		Object[] parsed = formatter.parse("a,b,1", null);
 		assertEquals(3, parsed.length);
@@ -22,7 +24,7 @@ public class CSVFormatterTest {
 	}
 
 	@Test
-	public void emptyMiddle() throws Exception{
+	public void emptyMiddle() throws Exception {
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
 		Object[] parsed = formatter.parse("a,,1", null);
 		assertEquals(3, parsed.length);
@@ -32,7 +34,7 @@ public class CSVFormatterTest {
 	}
 
 	@Test
-	public void emptyBeginning() throws Exception{
+	public void emptyBeginning() throws Exception {
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
 		Object[] parsed = formatter.parse(",b,1", null);
 		assertEquals(3, parsed.length);
@@ -42,7 +44,7 @@ public class CSVFormatterTest {
 	}
 
 	@Test
-	public void emptyEnd() throws Exception{
+	public void emptyEnd() throws Exception {
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
 		Object[] parsed = formatter.parse("a,b,", null);
 		assertEquals(3, parsed.length);
@@ -52,7 +54,7 @@ public class CSVFormatterTest {
 	}
 
 	@Test
-	public void nulls() throws Exception{
+	public void nulls() throws Exception {
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
 		Object[] parsed = formatter.parse(",,", null);
 		assertEquals(3, parsed.length);
@@ -63,16 +65,25 @@ public class CSVFormatterTest {
 
 	@Test
 	public void filter() throws Exception {
+
+		Map byName = new HashMap();
+		byName.put("first", 0);
+
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
-		Object[] parsed = formatter.parse(",,", Arrays.asList(new Field("first",  null)));
+		Object[] parsed = formatter.parse(",,", byName);
 		assertEquals(1, parsed.length);
 		assertEquals("", parsed[0]);
 	}
 
 	@Test
 	public void filter2() throws Exception {
+
+		Map byName = new LinkedHashMap();
+		byName.put("first", 0);
+		byName.put("third", 2);
+
 		CSVFormatter formatter = new CSVFormatter(tableDefTest(",", false));
-		Object[] parsed = formatter.parse("a,b,c", Arrays.asList(new Field("first",  null), new Field("third",  null)));
+		Object[] parsed = formatter.parse("a,b,c", byName);
 		assertEquals(2, parsed.length);
 		assertEquals("a", parsed[0]);
 		assertEquals("c", parsed[1]);
@@ -90,7 +101,7 @@ public class CSVFormatterTest {
 		Column c2 = new Column("second", "string");
 		Column c3 = new Column("third", "string");
 
-		tableDefinition.setColumns(Arrays.asList(c1,c2,c3));
+		tableDefinition.setColumns(Arrays.asList(c1, c2, c3));
 
 		return tableDefinition;
 	}
