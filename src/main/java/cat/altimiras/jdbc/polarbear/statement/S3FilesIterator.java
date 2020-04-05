@@ -53,7 +53,6 @@ public class S3FilesIterator implements Iterator<InputStream> {
 				.build();
 
 		ListObjectsV2Iterable files = s3Client.listObjectsV2Paginator(listReq);
-//files.contents().forEach(System.out::println);
 
 		it = files.contents().iterator();
 	}

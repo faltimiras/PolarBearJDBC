@@ -10,11 +10,11 @@ import java.util.concurrent.Executor;
 
 public abstract class PolarBearConnection implements Connection {
 
-	protected String target;
+	final protected String target;
 
 	protected TableManager tableManager;
 
-	protected QueryParser queryParser = new QueryParser();
+	protected QueryParser queryParser;
 
 	PolarBearConnection(String target, TableManager tableManager, QueryParser queryParser) {
 		this.target = target;
@@ -44,7 +44,9 @@ public abstract class PolarBearConnection implements Connection {
 	@Override
 	public <T> T unwrap(Class<T> iface) throws SQLException {
 		return null;
-	}	@Override
+	}
+
+	@Override
 	public void setAutoCommit(boolean autoCommit) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
@@ -52,7 +54,9 @@ public abstract class PolarBearConnection implements Connection {
 	@Override
 	public boolean isWrapperFor(Class<?> iface) throws SQLException {
 		return false;
-	}	@Override
+	}
+
+	@Override
 	public boolean getAutoCommit() throws SQLException {
 		return false;
 	}
@@ -286,8 +290,6 @@ public abstract class PolarBearConnection implements Connection {
 	public int getNetworkTimeout() throws SQLException {
 		return 0;
 	}
-
-
 
 
 }

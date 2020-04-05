@@ -23,7 +23,6 @@ public class ConnectionFactory {
 					return new FSConnection(target);
 				case "gcs":
 					throw new UnsupportedOperationException();
-					//return new GCSConnection(target, user, psw);
 				default:
 					throw new PolarBearException("provider not supported");
 			}
@@ -33,7 +32,6 @@ public class ConnectionFactory {
 		} catch (Exception e) {
 			throw new PolarBearException("url definition incorrect: Must follow format jdbc:polarbear:<provider>//<url|fs>", e);
 		}
-
 	}
 
 	public static String getProviderName(String url) {
@@ -57,5 +55,4 @@ public class ConnectionFactory {
 
 		return null;
 	}
-
 }

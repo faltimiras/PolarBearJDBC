@@ -26,7 +26,7 @@ public class FSResultSetTest {
 
 		Statement statement = mock(Statement.class);
 
-		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test-table1"),
+		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test_table1"),
 				LocalDateTime.of(2019, 01, 01, 12, 58),
 				LocalDateTime.of(2019, 01, 01, 13, 05),
 				"YYYY/MM/dd/HH/mm",
@@ -220,7 +220,7 @@ public class FSResultSetTest {
 		Statement statement = mock(Statement.class);
 		when(statement.getMaxRows()).thenReturn(2);
 
-		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test-table1"),
+		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test_table1"),
 				LocalDateTime.of(2019, 01, 01, 12, 58),
 				LocalDateTime.of(2019, 01, 01, 13, 05),
 				"YYYY/MM/dd/HH/mm",
@@ -241,7 +241,7 @@ public class FSResultSetTest {
 
 		Statement statement = mock(Statement.class);
 
-		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test-table1"),
+		DirsIterator dirsIterator = new DirsIterator(Paths.get("src/test/resources/fs/test_table1"),
 				LocalDateTime.of(2019, 01, 01, 12, 58),
 				LocalDateTime.of(2019, 01, 01, 13, 05),
 				"YYYY/MM/dd/HH/mm",

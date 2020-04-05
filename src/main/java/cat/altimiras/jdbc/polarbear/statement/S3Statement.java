@@ -24,7 +24,6 @@ public class S3Statement extends PolarBearStatement {
 		this.bucket = bucket;
 	}
 
-
 	@Override
 	public ResultSet executeQuery(String sql) throws SQLException {
 

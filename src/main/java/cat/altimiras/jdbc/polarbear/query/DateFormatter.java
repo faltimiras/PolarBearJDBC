@@ -11,9 +11,12 @@ import java.time.format.DateTimeFormatterBuilder;
 class DateFormatter {
 
 	private static final DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
-			.appendPattern("[yyyy-MM-dd HH:mm][yyyy-MM-dd][yyyy/MM/dd HH:mm]").toFormatter();
+			.appendPattern("[yyyy-MM-dd HH:mm][''yyyy-MM-dd HH:mm''][\"yyyy-MM-dd HH:mm\"]"
+					+ "[yyyy-MM-dd]['yyyy-MM-dd'][\"yyyy-MM-dd\"]"
+					+ "[yyyy/MM/dd HH:mm][''yyyy/MM/dd HH:mm''][\"yyyy/MM/dd HH:mm\"]").toFormatter();
 	private static final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
-			.appendPattern("[yyyy-MM-dd][yyyy/MM/dd]").toFormatter();
+			.appendPattern("[yyyy-MM-dd][''yyyy-MM-dd''][\"yyyy-MM-dd\"]"
+					+ "[yyyy/MM/dd][''yyyy/MM/dd''][\"yyyy/MM/dd\"]").toFormatter();
 
 	static LocalDateTime parse(String strDate) throws PolarBearException {
 		try {

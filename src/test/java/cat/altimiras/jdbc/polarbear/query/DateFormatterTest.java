@@ -17,6 +17,20 @@ public class DateFormatterTest {
 	}
 
 	@Test
+	public void localDateTimeWithoutTimeSingleQuote() throws Exception {
+
+		LocalDateTime dateTime = DateFormatter.parse("'2019/12/12'");
+		assertEquals("2019-12-12T00:00", dateTime.toString());
+	}
+
+	@Test
+	public void localDateTimeWithoutTimeQuote() throws Exception {
+
+		LocalDateTime dateTime = DateFormatter.parse("\"2019/12/12\"");
+		assertEquals("2019-12-12T00:00", dateTime.toString());
+	}
+
+	@Test
 	public void localDateTimeWithoutTime2() throws Exception {
 
 		LocalDateTime dateTime = DateFormatter.parse("2019-12-12");
@@ -27,6 +41,20 @@ public class DateFormatterTest {
 	public void localDateTime() throws Exception {
 
 		LocalDateTime dateTime = DateFormatter.parse("2019/12/12 15:55");
+		assertEquals("2019-12-12T15:55", dateTime.toString());
+	}
+
+	@Test
+	public void localDateTimeSimpleQuoted() throws Exception {
+
+		LocalDateTime dateTime = DateFormatter.parse("'2019/12/12 15:55'");
+		assertEquals("2019-12-12T15:55", dateTime.toString());
+	}
+
+	@Test
+	public void localDateTimeQuoted() throws Exception {
+
+		LocalDateTime dateTime = DateFormatter.parse("\"2019/12/12 15:55\"");
 		assertEquals("2019-12-12T15:55", dateTime.toString());
 	}
 

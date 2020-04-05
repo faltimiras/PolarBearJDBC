@@ -11,6 +11,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
+
 public class DirsIterator implements Iterator<Path> {
 
 	private final static Logger log = LoggerFactory.getLogger(DirsIterator.class);
@@ -59,11 +61,11 @@ public class DirsIterator implements Iterator<Path> {
 
 			if (Files.exists(next) && Files.isDirectory(next)) {
 				log.debug("Next path: {}", next);
-				current = current.plus(step, ChronoUnit.MINUTES);
+				current = current.plus(step, MINUTES);
 				return true;
 			} else {
 				log.debug("Path do not exist: {}", next);
-				current = current.plus(step, ChronoUnit.MINUTES);
+				current = current.plus(step, MINUTES);
 				notFound++;
 			}
 		}

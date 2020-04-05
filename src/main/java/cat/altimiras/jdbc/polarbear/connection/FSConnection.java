@@ -2,6 +2,7 @@ package cat.altimiras.jdbc.polarbear.connection;
 
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.FSTableManager;
+import cat.altimiras.jdbc.polarbear.query.QueryParser;
 import cat.altimiras.jdbc.polarbear.statement.FSStatement;
 
 import java.nio.file.Files;
@@ -23,6 +24,7 @@ public class FSConnection extends PolarBearConnection {
 				throw new PolarBearException(target + "is not a directory");
 			}
 			this.tableManager = new FSTableManager(basePath);
+			this.queryParser = new QueryParser(this.tableManager);
 
 		} catch (InvalidPathException e) {
 			throw new PolarBearException(target + "is not a file system path", e);

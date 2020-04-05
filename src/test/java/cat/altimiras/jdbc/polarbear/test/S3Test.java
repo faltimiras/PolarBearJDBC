@@ -15,7 +15,6 @@ import static org.junit.Assert.assertTrue;
 @Ignore
 public class S3Test {
 
-
 	@Test
 	public void selectAll() throws Exception {
 

@@ -1,5 +1,5 @@
 {
-  "name" : "test-table2",
+  "name" : "test_table2",
   "format" : "csv",
   "tsColumnName" : "ts",
   "partitionsFormat" : "YYYY/MM/",

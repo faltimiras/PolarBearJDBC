@@ -19,7 +19,7 @@ public class FSTest {
 		Class.forName("cat.altimiras.jdbc.polarbear.PolarBearDriver");
 		Connection conn = DriverManager.getConnection("jdbc:polarbear:fs//src/test/resources/fs/", "", "");
 		Statement stmt = conn.createStatement();
-		String sql = "SELECT field FROM test-table1";
+		String sql = "SELECT field FROM test_table1";
 		ResultSet rs = stmt.executeQuery(sql);
 
 		assertTrue(rs.next());
@@ -45,7 +45,7 @@ public class FSTest {
 		Class.forName("cat.altimiras.jdbc.polarbear.PolarBearDriver");
 		Connection conn = DriverManager.getConnection("jdbc:polarbear:fs//src/test/resources/fs/", "", "");
 		Statement stmt = conn.createStatement();
-		String sql = "SELECT field FROM test-table1 where ts > '2019-01-01 12:59'";
+		String sql = "SELECT field FROM test_table1 where ts > '2019-01-01 12:59'";
 		ResultSet rs = stmt.executeQuery(sql);
 
 		assertTrue(rs.next());
@@ -59,7 +59,7 @@ public class FSTest {
 		Class.forName("cat.altimiras.jdbc.polarbear.PolarBearDriver");
 		Connection conn = DriverManager.getConnection("jdbc:polarbear:fs//src/test/resources/fs/", "", "");
 		Statement stmt = conn.createStatement();
-		String sql = "SELECT field FROM test-table1 where ts < '2019-01-01 13:00'";
+		String sql = "SELECT field FROM test_table1 where ts < '2019-01-01 13:00'";
 		ResultSet rs = stmt.executeQuery(sql);
 
 		assertTrue(rs.next());
@@ -83,7 +83,7 @@ public class FSTest {
 		Class.forName("cat.altimiras.jdbc.polarbear.PolarBearDriver");
 		Connection conn = DriverManager.getConnection("jdbc:polarbear:fs//src/test/resources/fs/", "", "");
 		Statement stmt = conn.createStatement();
-		String sql = "SELECT field FROM test-table1 where ts => '2019-01-01 13:00' and  ts < '2019-01-01 13:01'";
+		String sql = "SELECT field FROM test_table1 where ts >= '2019-01-01 13:00' and  ts < '2019-01-01 13:01'";
 		ResultSet rs = stmt.executeQuery(sql);
 
 		assertFalse(rs.next());
@@ -95,7 +95,7 @@ public class FSTest {
 		Class.forName("cat.altimiras.jdbc.polarbear.PolarBearDriver");
 		Connection conn = DriverManager.getConnection("jdbc:polarbear:fs//src/test/resources/fs/", "", "");
 		Statement stmt = conn.createStatement();
-		String sql = "SELECT field2, field, field3 as alias3 FROM test-table2";
+		String sql = "SELECT field2, field, field3 as alias3 FROM test_table2";
 		ResultSet rs = stmt.executeQuery(sql);
 
 		assertTrue(rs.next());
