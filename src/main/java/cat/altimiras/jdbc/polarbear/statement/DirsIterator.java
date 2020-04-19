@@ -1,41 +1,41 @@
 package cat.altimiras.jdbc.polarbear.statement;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
-
-import static java.time.temporal.ChronoUnit.MINUTES;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DirsIterator implements Iterator<Path> {
-
 	private final static Logger log = LoggerFactory.getLogger(DirsIterator.class);
 
 	private final DateTimeFormatter pathGenerator;
 
 	private final Path base;
+
 	private final LocalDateTime to;
+
 	private final int step;
-	private final int notFoundMaxLimit;
+
+	private final int notFoundMaxLimit; //-1 disabled
+
 	private LocalDateTime current;
+
 	private Path next;
 
-	public DirsIterator(Path base, LocalDateTime from, LocalDateTime to, String pathPattern, int step, int notFoundMaxLimit) {
+	public DirsIterator(Path base, LocalDateTime from, LocalDateTime to, String pathPattern, int step,
+		int notFoundMaxLimit) {
 
 		if (step < 0) {
 			throw new IllegalArgumentException("step must be positive");
 		}
 		this.step = step;
 
-		if (notFoundMaxLimit < 0) {
-			throw new IllegalArgumentException("notFoundMaxLimit must be positive");
-		}
 		this.notFoundMaxLimit = notFoundMaxLimit;
 
 		if (from.isAfter(to)) {
@@ -47,15 +47,13 @@ public class DirsIterator implements Iterator<Path> {
 		this.current = from;
 		this.to = to;
 		this.base = base;
-
 	}
 
 	@Override
 	public boolean hasNext() {
-
 		int notFound = 0;
 
-		while (!current.isAfter(to) && notFound < notFoundMaxLimit) {
+		while (!current.isAfter(to) && (notFound == -1 || notFound < notFoundMaxLimit)) {
 
 			next = base.resolve(Paths.get(pathGenerator.format(current)));
 

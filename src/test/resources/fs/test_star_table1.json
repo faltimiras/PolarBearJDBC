@@ -1,0 +1,19 @@
+{
+  "name" : "test_start_table1",
+  "format" : "csv",
+  "columns" : [
+    {
+      "name" : "f1",
+      "type" : "TEXT",
+      "isPK" : true
+    },
+    {
+      "name" : "f2",
+      "type" : "LONG"
+    },
+    {
+      "name" : "f3",
+      "type" : "TEXT"
+    }
+  ]
+}

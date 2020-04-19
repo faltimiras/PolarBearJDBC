@@ -5,14 +5,20 @@ import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 
 import java.util.Map;
 
-public abstract class RowFormatter {
+public abstract class RowDeserializer {
 
 	final protected TableDefinition tableDefinition;
 
-	public RowFormatter(TableDefinition tableDefinition) {
+	public RowDeserializer(TableDefinition tableDefinition) {
 		this.tableDefinition = tableDefinition;
 	}
 
-	public abstract Object[] parse(String raw, Map<String, Integer> fieldsByName) throws PolarBearException;
+	/**
+	 * Converts raw to array of elements
+	 * @param raw
+	 * @return
+	 * @throws PolarBearException
+	 */
+	public abstract String[] parse(byte[] raw) throws PolarBearException;
 
 }

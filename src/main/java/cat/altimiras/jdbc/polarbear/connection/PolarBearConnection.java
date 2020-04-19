@@ -1,7 +1,7 @@
 package cat.altimiras.jdbc.polarbear.connection;
 
 import cat.altimiras.jdbc.polarbear.def.TableManager;
-import cat.altimiras.jdbc.polarbear.query.QueryParser;
+import cat.altimiras.jdbc.polarbear.query.QueryManager;
 
 import java.sql.*;
 import java.util.Map;
@@ -14,12 +14,12 @@ public abstract class PolarBearConnection implements Connection {
 
 	protected TableManager tableManager;
 
-	protected QueryParser queryParser;
+	protected QueryManager queryManager;
 
-	PolarBearConnection(String target, TableManager tableManager, QueryParser queryParser) {
+	PolarBearConnection(String target, TableManager tableManager, QueryManager queryManager) {
 		this.target = target;
 		this.tableManager = tableManager;
-		this.queryParser = queryParser;
+		this.queryManager = queryManager;
 	}
 
 	public PolarBearConnection(String target) {

@@ -1,37 +1,32 @@
 package cat.altimiras.jdbc.polarbear.statement;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DirsIterator.class)
 public class DirsIteratorTest {
-
 	private LocalDateTime before = LocalDateTime.of(2019, 1, 1, 12, 55);
+
 	private LocalDateTime after = LocalDateTime.of(2019, 1, 1, 12, 59);
+
 	private String pattern = "YYYY/MM/dd/HH/mm";
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateStepPostive() throws Exception {
-		new DirsIterator(Paths.get("/"), before, after, pattern, -1, 100);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void validateMaxLimitPostive() throws Exception {
-		new DirsIterator(Paths.get("/"), before, after, pattern, 1, -8);
+		new DirsIterator(Paths.get("/"), before, after, pattern, 1, -1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -113,5 +108,4 @@ public class DirsIteratorTest {
 		assertEquals("/2019/01/01/12/59", iterator.next().toString());
 		assertFalse(iterator.hasNext());
 	}
-
 }

@@ -1,44 +1,35 @@
 package cat.altimiras.jdbc.polarbear.query;
 
-import cat.altimiras.jdbc.polarbear.PolarBearException;
-import cat.altimiras.jdbc.polarbear.def.TableDefinition;
-import cat.altimiras.jdbc.polarbear.def.TableManager;
 import cat.altimiras.jdbc.polarbear.query.antlr4.SqlBaseListener;
 import cat.altimiras.jdbc.polarbear.query.antlr4.SqlParser;
-
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Map;
-
-import static java.time.temporal.ChronoUnit.MINUTES;
 
 public class Query extends SqlBaseListener {
+	private List<Table> tables = new ArrayList<>(); //extra tables to join, star schema
 
-	private TableManager tableManager;
-	private TableDefinition tableDefinition;
-	private Map<String, Integer> tableColumns;
-
-	private String table;
 	private List<Field> fields = new ArrayList<>(); //null means *
-	private LocalDateTime tsLowerLimit; //null means no limit. Including it
-	private LocalDateTime tsUpLimit; //null means no limit. Including it
 
-	//private List<>
+	private String currentTableAlias = null;
 
-	private String currentColumn;
-	private String currentComparator;
-	private boolean currentColumnFirst; //true means column is first operand
-	private String currentValue;
+	private String currentTableName = null;
 
-	public Query(TableManager tableManager) {
-		this.tableManager = tableManager;
-	}
+	private String currentColumnName = null;
+
+	private String currentColumnAlias = null;
+
+	//Filters stored in pre-order
+	private Deque<Expr> contextExpr = new ArrayDeque<>();
 
 	@Override
 	public void exitTable(SqlParser.TableContext ctx) {
-		this.table = ctx.table_alias() == null ? ctx.table_name().getText() : ctx.table_alias().getText();
+		Table table = new Table(this.currentTableName, this.currentTableAlias);
+		this.tables.add(table);
+
+		this.currentTableName = null;
+		this.currentTableAlias = null;
 	}
 
 	@Override
@@ -46,120 +37,118 @@ public class Query extends SqlBaseListener {
 		if ("*".equals(ctx.getText())) {
 			this.fields = null;
 		} else {
-			String alias = ctx.column_alias() == null ? null : ctx.column_alias().getText();
-			Field field = new Field(ctx.column_name().getText(), alias);
-			fields.add(field);
+			fields.add(new Field(currentTableName, currentColumnName, currentColumnAlias));
+		}
+		this.currentTableName = null;
+		this.currentColumnName = null;
+		this.currentColumnAlias = null;
+	}
+
+	@Override
+	public void exitTable_name(SqlParser.Table_nameContext ctx) {
+		this.currentTableName = ctx.getText();
+	}
+
+	@Override
+	public void exitTable_alias(SqlParser.Table_aliasContext ctx) {
+		this.currentTableAlias = ctx.getText();
+	}
+
+	@Override
+	public void exitColumn_name(SqlParser.Column_nameContext ctx) {
+		this.currentColumnName = ctx.getText();
+	}
+
+	@Override
+	public void exitColumn_alias(SqlParser.Column_aliasContext ctx) {
+		this.currentColumnAlias = ctx.getText();
+	}
+
+	@Override
+	public void exitExpr_literal(SqlParser.Expr_literalContext ctx) {
+		Expr currentContext = this.contextExpr.peek();
+		if (currentContext.getOperand1() == null) {
+			currentContext.setOperand1(unquote(ctx.getText()));
+		} else {
+			currentContext.setOperand2(unquote(ctx.getText()));
 		}
 	}
 
 	@Override
-	public void exitFilter(SqlParser.FilterContext ctx) {
-
-		try {
-			if (currentColumn.equals(tableDefinition.getTsColumnName())) {
-				if (currentComparator.equals(">")) {
-					if (currentColumnFirst) {
-						tsLowerLimit = DateFormatter.parse(currentValue).plus(1, MINUTES);
-					} else {
-						tsUpLimit = DateFormatter.parse(currentValue).minus(1, MINUTES);
-					}
-				}
-				else if ( currentComparator.equals(">=")){
-					if (currentColumnFirst) {
-						tsLowerLimit = DateFormatter.parse(currentValue);
-					} else {
-						tsUpLimit = DateFormatter.parse(currentValue);
-					}
-				}
-				else if (currentComparator.equals("<")) {
-					if (currentColumnFirst) {
-						tsUpLimit = DateFormatter.parse(currentValue).minus(1, MINUTES);
-					} else {
-						tsLowerLimit = DateFormatter.parse(currentValue).plus(1, MINUTES);
-					}
-				}
-				else if (currentComparator.equals("<=")){
-					if (currentColumnFirst) {
-						tsUpLimit = DateFormatter.parse(currentValue);
-					} else {
-						tsLowerLimit = DateFormatter.parse(currentValue);
-					}
-				}
-			} else {
-				//other filters
-				//TODO
-			}
-		} catch (Exception e) {
-			//TODO
-		}
-
-		currentColumn = null;
-		currentComparator = null;
-		currentValue = null;
-	}
-
-	@Override
-	public void exitTo_compare(SqlParser.To_compareContext ctx) {
-
-		try {
-			loadTableDef();
-
-			String txt = ctx.getText();
-
-			if (tableColumns.containsKey(txt) || txt.equals(tableDefinition.getTsColumnName())) {
-				currentColumn = txt;
-				currentColumnFirst = currentValue == null;
-			} else {
-				//column not exist
-				currentValue = txt;
-			}
-
-		} catch (Exception e) {
-			//TODO
+	public void exitExpr_column(SqlParser.Expr_columnContext ctx) {
+		String tableName = ctx.table_name() == null ? null : ctx.table_name().getText();
+		Field field = new Field(tableName, ctx.column_name().getText(), null);
+		Expr currentContext = this.contextExpr.peek();
+		if (currentContext.getOperand1() == null) {
+			currentContext.setOperand1(field);
+		} else {
+			currentContext.setOperand2(field);
 		}
 	}
 
 	@Override
 	public void exitComparator(SqlParser.ComparatorContext ctx) {
-		this.currentComparator = ctx.getText();
+		this.contextExpr.peek().setOperation(ctx.getText());
 	}
 
-	public String getTable() {
-		return table;
+	@Override
+	public void exitExpr_binary(SqlParser.Expr_binaryContext ctx) {
+		//if more than element on the stack, must be compacted:
+		// lower level there is the OR/AND op
+		// at the peek the last expression processed
+		if (contextExpr.size() != 1) {
+			Expr lastExpr = contextExpr.pop();
+			contextExpr.peek().setOperand2(lastExpr);
+		}
 	}
 
-	public void setTable(String table) {
-		this.table = table;
+	@Override
+	public void exitBinary(SqlParser.BinaryContext ctx) { //exit OP (o OR o AND)
+		//AND/OP put itself at the peek, putting current expression as a first child
+		Expr expr = new Expr();
+		expr.setOperation(ctx.getText());
+		expr.setOperand1(this.contextExpr.pop());
+		this.contextExpr.push(expr);
+	}
+
+	@Override
+	public void enterExpr_filter(SqlParser.Expr_filterContext ctx) {
+		this.contextExpr.push(new Expr());
+	}
+
+	@Override
+	public void exitExpr_parenthesis(SqlParser.Expr_parenthesisContext ctx) {
+		if (contextExpr.size() != 1) {
+			Expr lastExpr = contextExpr.pop();
+			contextExpr.peek().setOperand2(lastExpr);
+		}
+	}
+
+	@Override
+	public void exitExpr_not(SqlParser.Expr_notContext ctx) {
+		Expr not = new Expr();
+		not.setOperation("NOT");
+		not.setOperand1(contextExpr.pop());
+		contextExpr.push(not);
+	}
+
+	public List<Table> getTables() {
+		return tables;
 	}
 
 	public List<Field> getFields() {
 		return fields;
 	}
 
-	public void setFields(List<Field> fields) {
-		this.fields = fields;
+	public Expr getWhere() {
+		return contextExpr.peek();
 	}
 
-	public LocalDateTime getTsLowerLimit() {
-		return tsLowerLimit;
-	}
-
-	public void setTsLowerLimit(LocalDateTime tsLowerLimit) {
-		this.tsLowerLimit = tsLowerLimit;
-	}
-
-	public LocalDateTime getTsUpLimit() {
-		return tsUpLimit;
-	}
-
-	public void setTsUpLimit(LocalDateTime tsUpLimit) {
-		this.tsUpLimit = tsUpLimit;
-	}
-
-	private void loadTableDef() throws PolarBearException {
-		if (tableColumns == null) {
-			tableDefinition = tableManager.getTable(table);
-			tableColumns = tableDefinition.getColumnsByName();
+	private String unquote(String value) {
+		if (value.charAt(0) == '\'') {
+			return value.substring(1, value.length() - 1);
+		} else {
+			return value;
 		}
 	}
 }

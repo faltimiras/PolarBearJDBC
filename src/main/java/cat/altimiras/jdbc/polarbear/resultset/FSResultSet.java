@@ -1,12 +1,10 @@
 package cat.altimiras.jdbc.polarbear.resultset;
 
+import cat.altimiras.jdbc.polarbear.execution.Planner;
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 import cat.altimiras.jdbc.polarbear.query.Field;
 import cat.altimiras.jdbc.polarbear.statement.DirsIterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -14,21 +12,29 @@ import java.sql.Statement;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FSResultSet extends PolarBearResultSet {
-
 	private final static Logger log = LoggerFactory.getLogger(FSResultSet.class);
 
 	private final DirsIterator itDirs;
+
 	private Stream<Path> filesInDir;
+
 	private Iterator<Path> itFilesInDir;
+
 	private Stream<String> rows; //TODO byte[]
+
 	private Iterator<String> itRows;
+
 	private String rowRaw;
+
 	private int rowsFetched = 0;
 
-	public FSResultSet(List<Field> queryFields, TableDefinition tableDefinition, DirsIterator itDirs, Statement statement) throws PolarBearException {
-		super(queryFields, tableDefinition, statement);
+	public FSResultSet(List<Field> queryFields, TableDefinition tableDefinition, DirsIterator itDirs, Planner planner,
+		Statement statement) throws PolarBearException {
+		super(queryFields, tableDefinition, planner, statement);
 		this.itDirs = itDirs;
 	}
 
@@ -50,7 +56,6 @@ public class FSResultSet extends PolarBearResultSet {
 					return nextDir();
 				}
 			}
-
 		} catch (Exception e) {
 			log.error("Error getting next value", e);
 			throw new PolarBearException("Error getting next value", e);
@@ -76,7 +81,8 @@ public class FSResultSet extends PolarBearResultSet {
 				log.debug("Empty line detected. Ignoring it");
 				return nextLine();
 			} else {
-				row = (String[]) rowFormatter.parse(rowRaw, this.queryFieldsByNameInFile);
+				String[] storedRow = rowDeserializer.parse(rowRaw.getBytes());
+				this.row = planner.process(storedRow);
 				return true;
 			}
 		}

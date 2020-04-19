@@ -1,8 +1,11 @@
 package cat.altimiras.jdbc.polarbear.def;
 
 import cat.altimiras.jdbc.polarbear.PolarBearException;
+import cat.altimiras.jdbc.polarbear.io.Reader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,25 +13,38 @@ public abstract class TableManager {
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 
-	private Map<String, TableDefinition> definitions = new HashMap<>();
+	protected Map<String, TableDefinition> definitions = new HashMap<>();
 
+	/**
+	 * Gets table definition from the source
+	 * @param name
+	 * @return
+	 * @throws PolarBearException
+	 */
 	public TableDefinition getTable(String name) throws PolarBearException {
 
 		try {
 			TableDefinition definition = definitions.get(name);
 			if (definition == null) {
-				byte[] json = read(name);
+				byte[] json = readDefinition(name);
 				definition = objectMapper.readValue(json, TableDefinition.class);
 				definitions.put(name, definition);
 			}
 			return definition;
-		} catch (Exception e) {
+		} catch (IOException  e) {
 			throw new PolarBearException("Error retrieving table metadata", e);
 		}
 	}
 
-	protected abstract byte[] read(String name) throws PolarBearException;
+	protected abstract byte[] readDefinition(String name) throws PolarBearException;
 
-	protected abstract void write(String name, byte[] json) throws PolarBearException;
+	protected abstract void writeDefinition(String name, byte[] json) throws PolarBearException;
+
+	/**
+	 * Reads the content of the table
+	 * @return
+	 * @throws PolarBearException
+	 */
+	public abstract Reader read(String name,  LocalDateTime from, LocalDateTime to, long maxRows) throws PolarBearException;
 
 }

@@ -1,30 +1,32 @@
 package cat.altimiras.jdbc.polarbear.def;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class TableDefinition {
-
 	private String name;
+
+	//table content format (csv, json...)
 	private String format;
-	private List<Column> columns;
-	@JsonIgnore
-	private Map<String, Integer> columnPosition;
-	private String tsColumnName;
-	private String partitionsFormat;
-	@JsonDeserialize(using = DateSerializer.class)
-	private LocalDateTime since;
-	private int step;
-	private int notFoundMaxLimit;
+
+	@JsonProperty("columns")
+	private List<ColumnDefinition> columnDefinitions;
+
+	@JsonProperty("partition")
+	private PartitionDefinition partitionDefinition;
+
 	private boolean ignoreWrongRowData = true;
+
+	private int notFoundMaxLimit;
 
 	private String separator = ","; //only csv format
 
+	@JsonIgnore
+	private Map<String, ColumnDefinition> columnByName;
 
 	public String getName() {
 		return name;
@@ -42,52 +44,8 @@ public class TableDefinition {
 		this.format = format;
 	}
 
-	public List<Column> getColumns() {
-		return columns;
-	}
-
-	public void setColumns(List<Column> columns) {
-		this.columns = columns;
-	}
-
-	public String getTsColumnName() {
-		return tsColumnName;
-	}
-
-	public void setTsColumnName(String tsColumnName) {
-		this.tsColumnName = tsColumnName;
-	}
-
-	public String getPartitionsFormat() {
-		return partitionsFormat;
-	}
-
-	public void setPartitionsFormat(String partitionsFormat) {
-		this.partitionsFormat = partitionsFormat;
-	}
-
-	public LocalDateTime getSince() {
-		return since;
-	}
-
-	public void setSince(LocalDateTime since) {
-		this.since = since;
-	}
-
-	public int getStep() {
-		return step;
-	}
-
-	public void setStep(int step) {
-		this.step = step;
-	}
-
-	public int getNotFoundMaxLimit() {
-		return notFoundMaxLimit;
-	}
-
-	public void setNotFoundMaxLimit(int notFoundMaxLimit) {
-		this.notFoundMaxLimit = notFoundMaxLimit;
+	public void setColumnDefinitions(List<ColumnDefinition> columnDefinitions) {
+		this.columnDefinitions = columnDefinitions;
 	}
 
 	public boolean isIgnoreWrongRowData() {
@@ -106,15 +64,49 @@ public class TableDefinition {
 		this.separator = separator;
 	}
 
-	public Map<String, Integer> getColumnsByName() {
-		if (columnPosition == null) {
-			columnPosition = new HashMap<>(columns.size());
-			for (int i = 0; i < columns.size(); i++) {
-				columnPosition.put(columns.get(i).getName(), i);
-			}
-		}
-		return columnPosition;
+	public boolean isStarTable() {
+		return this.partitionDefinition == null;
 	}
 
+	public boolean isMainTable() {
+		return this.partitionDefinition != null;
+	}
 
+	public PartitionDefinition getPartition() {
+		return partitionDefinition;
+	}
+
+	public void setPartition(PartitionDefinition partitionDefinition) {
+		this.partitionDefinition = partitionDefinition;
+	}
+
+	public int getNotFoundMaxLimit() {
+		return notFoundMaxLimit;
+	}
+
+	public void setNotFoundMaxLimit(int notFoundMaxLimit) {
+		this.notFoundMaxLimit = notFoundMaxLimit;
+	}
+
+	public Map<String, ColumnDefinition> getColumnsByName() {
+		if (columnByName == null) {
+			columnByName = new HashMap<>(columnDefinitions.size());
+			for (int i = 0; i < columnDefinitions.size(); i++) {
+				ColumnDefinition columnDefinition = columnDefinitions.get(i);
+				columnDefinition.setPosition(i);
+				columnByName.put(columnDefinition.getName(), columnDefinition);
+			}
+		}
+		return columnByName;
+	}
+
+	public List<Integer> getPKPositions() {
+		List<Integer> positions = new ArrayList<>();
+		for (int i = 0; i < columnDefinitions.size(); i++) {
+			if (columnDefinitions.get(i).isPK()) {
+				positions.add(i);
+			}
+		}
+		return positions;
+	}
 }

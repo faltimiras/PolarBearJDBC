@@ -3,8 +3,8 @@ grammar Sql;
 
 select
  : K_SELECT ( K_ALL )? result_column ( ',' result_column )*
-   ( K_FROM table )?
-   ( K_WHERE where )?
+   ( K_FROM table ( ',' table )* )?
+   ( K_WHERE expr )?
  ;
 
 table
@@ -12,51 +12,39 @@ table
  ;
 
 result_column
- : '*'
- | table_name '.' '*'
- | column_name ( K_AS? column_alias )?
+ : (table_name '.')? '*'
+ | (table_name '.')? column_name ( K_AS? column_alias )?
  ;
 
-where
- : filter
- | (filter binary_op filter)*
-;
+expr
+ : literal_value #expr_literal
+ | ( ( database_name '.' )? table_name '.' )? column_name #expr_column
+ | K_NOT expr #expr_not
+ | expr comparator expr #expr_filter
+ | '(' expr ')' #expr_parenthesis
+ | expr binary expr #expr_binary
+ ;
 
-filter
- : to_compare comparator to_compare
-;
+ comparator
+ : ( '<' | '<=' | '>' | '>=' | '==' | '=' | '!=' | '<>' | K_IN | K_LIKE | K_REGEXP )
+ ;
 
-binary_op
+ binary
  : (K_AND | K_OR)
  ;
 
-to_compare
- : column_name
- | NUMERIC_LITERAL
+literal_value
+ : NUMERIC_LITERAL
  | DATE_TIME
  | DATE
  | TIME
  | STRING_LITERAL
  ;
 
-comparator
- : ( '<' | '<=' | '>' | '>=' | '==' | '=' | '!=' | '<>' | K_IN | K_LIKE | K_REGEXP)
- ;
-
 column_alias
  : IDENTIFIER
  | STRING_LITERAL
  ;
-
-keyword
- : K_AND
- | K_FROM
- | K_LIMIT
- | K_SELECT
- | K_WHERE
- | K_AS
- ;
-
 
 database_name
  : any_name
@@ -110,6 +98,7 @@ NOT_EQ2 : '<>';
 
 K_AND : A N D;
 K_OR : O R;
+K_NOT : N O T;
 K_FROM : F R O M;
 K_SELECT : S E L E C T;
 K_WHERE : W H E R E;
@@ -161,7 +150,7 @@ BIND_PARAMETER
  ;
 
 STRING_LITERAL
- : '\'' ( ~'\'' | '\'\'' )* '\''
+: '\'' ( ~'\'' | '\'\'' )* '\''
  ;
 
 SPACES

@@ -12,12 +12,12 @@ public class RowFormatterFactory {
 	private static Map<String, Class> formatters = new HashMap<>(1);
 
 	static {
-		formatters.put("csv", CSVFormatter.class); //TODO: lib in classpath should be able to add formats
-		formatters.put("json", JsonlFormatter.class);
-		formatters.put("jsonl", JsonlFormatter.class);
+		formatters.put("csv", CSVDeserializer.class); //TODO: lib in classpath should be able to add formats
+		formatters.put("json", JsonlDeserializer.class);
+		formatters.put("jsonl", JsonlDeserializer.class);
 	}
 
-	public static RowFormatter get(String format, TableDefinition tableDefinition) throws PolarBearException {
+	public static RowDeserializer get(String format, TableDefinition tableDefinition) throws PolarBearException {
 
 		try {
 			Class formatterClass = formatters.get(format);
@@ -26,7 +26,7 @@ public class RowFormatterFactory {
 			}
 
 			Constructor c = formatterClass.getConstructor(TableDefinition.class);
-			return (RowFormatter) c.newInstance(tableDefinition);
+			return (RowDeserializer) c.newInstance(tableDefinition);
 
 		} catch (Exception e) {
 			throw new PolarBearException("Formatter can not initialized", e);

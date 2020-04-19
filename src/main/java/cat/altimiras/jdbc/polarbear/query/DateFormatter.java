@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 
-class DateFormatter {
+public class DateFormatter {
 
 	private static final DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
 			.appendPattern("[yyyy-MM-dd HH:mm][''yyyy-MM-dd HH:mm''][\"yyyy-MM-dd HH:mm\"]"
@@ -18,7 +18,7 @@ class DateFormatter {
 			.appendPattern("[yyyy-MM-dd][''yyyy-MM-dd''][\"yyyy-MM-dd\"]"
 					+ "[yyyy/MM/dd][''yyyy/MM/dd''][\"yyyy/MM/dd\"]").toFormatter();
 
-	static LocalDateTime parse(String strDate) throws PolarBearException {
+	public static LocalDateTime parse(String strDate) throws PolarBearException {
 		try {
 			return LocalDateTime.from(dateTimeFormatter.parse(strDate));
 		} catch (DateTimeException e) {

@@ -1,50 +1,44 @@
 package cat.altimiras.jdbc.polarbear.statement;
 
+import cat.altimiras.jdbc.polarbear.execution.Planner;
 import cat.altimiras.jdbc.polarbear.PolarBearException;
-import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 import cat.altimiras.jdbc.polarbear.def.TableManager;
 import cat.altimiras.jdbc.polarbear.query.Query;
-import cat.altimiras.jdbc.polarbear.query.QueryParser;
+import cat.altimiras.jdbc.polarbear.query.QueryManager;
 import cat.altimiras.jdbc.polarbear.resultset.FSResultSet;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 
 public class FSStatement extends PolarBearStatement {
-
 	private final Path base;
 
-	public FSStatement(String target, TableManager tableManager, QueryParser queryParser, Connection connection) {
-		super(target, tableManager, queryParser, connection);
+	public FSStatement(String target, TableManager tableManager, QueryManager queryManager, Connection connection) {
+		super(target, tableManager, queryManager, connection);
 		this.base = Paths.get(target);
 	}
 
 	@Override
 	public ResultSet executeQuery(String sql) throws SQLException {
 
-		Query query = this.queryParser.parse(sql);
+		Query query = this.queryManager.parse(sql);
+		Planner planner = new Planner(tableManager, query);
 
-		TableDefinition tableDefinition = this.tableManager.getTable(query.getTable());
-		LocalDateTime from = query.getTsLowerLimit() == null ? tableDefinition.getSince() : query.getTsLowerLimit();
-		LocalDateTime to = query.getTsUpLimit() == null ? LocalDateTime.now() : query.getTsUpLimit();
-
-		if (from.isAfter(to)) {
+		if (planner.getTsLowerLimit().isAfter(planner.getTsUpperLimit())) {
 			throw new PolarBearException("Time range is not valid");
 		}
 
 		DirsIterator dirsIterator = new DirsIterator(
-				base.resolve(query.getTable()),
-				from,
-				to,
-				tableDefinition.getPartitionsFormat(),
-				tableDefinition.getStep(),
-				tableDefinition.getNotFoundMaxLimit());
+			base.resolve(planner.getMainTable().getName()),
+			planner.getTsLowerLimit(),
+			planner.getTsUpperLimit(),
+			planner.getMainTable().getPartition().getPartitionsFormat(),
+			planner.getMainTable().getPartition().getStep(),
+			planner.getMainTable().getNotFoundMaxLimit());
 
-		resultSet = new FSResultSet(query.getFields(), tableDefinition, dirsIterator, this);
+		resultSet = new FSResultSet(query.getFields(), planner.getMainTable(), dirsIterator, planner,this);
 		return resultSet;
 	}
 }

@@ -1,7 +1,7 @@
 package cat.altimiras.jdbc.polarbear.format;
 
 import cat.altimiras.jdbc.polarbear.PolarBearException;
-import cat.altimiras.jdbc.polarbear.def.Column;
+import cat.altimiras.jdbc.polarbear.def.ColumnDefinition;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Map;
 
 
-public class JsonlFormatter extends RowFormatter {
+public class JsonlDeserializer { /*extends RowConverter {
 
 	private final int columns;
 
@@ -23,9 +23,9 @@ public class JsonlFormatter extends RowFormatter {
 
 	private final ObjectMapper objectMapper;
 
-	public JsonlFormatter(TableDefinition tableDefinition) {
+	public JsonlConverter(TableDefinition tableDefinition) {
 		super(tableDefinition);
-		this.columns = tableDefinition.getColumns().size();
+		this.columns = tableDefinition.getColumnDefinitions().size();
 		this.ignoreWrongRow = tableDefinition.isIgnoreWrongRowData();
 
 		this.objectMapper = new ObjectMapper();
@@ -87,12 +87,13 @@ public class JsonlFormatter extends RowFormatter {
 
 			JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-			String[] values = new String[tableDefinition.getColumns().size()];
-			for (int i = 0; i < tableDefinition.getColumns().size(); i++) {
-				Column column = tableDefinition.getColumns().get(i);
-				values[i] = node.get(column.getName()).asText();
+			String[] values = new String[tableDefinition.getColumnDefinitions().size()];
+			for (int i = 0; i < tableDefinition.getColumnDefinitions().size(); i++) {
+				ColumnDefinition columnDefinition = tableDefinition.getColumnDefinitions().get(i);
+				values[i] = node.get(columnDefinition.getName()).asText();
 			}
 			return values;
 		}
 	}
+	*/
 }

@@ -1,6 +1,7 @@
 package cat.altimiras.jdbc.polarbear.def;
 
 import cat.altimiras.jdbc.polarbear.PolarBearException;
+import cat.altimiras.jdbc.polarbear.io.Reader;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -9,6 +10,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
+import java.time.LocalDateTime;
 
 public class S3TableManager extends TableManager {
 
@@ -23,7 +26,7 @@ public class S3TableManager extends TableManager {
 	}
 
 	@Override
-	protected byte[] read(String name) throws PolarBearException {
+	protected byte[] readDefinition(String name) throws PolarBearException {
 		try {
 			ResponseBytes<GetObjectResponse> raw = s3Client.getObject(
 					GetObjectRequest.builder()
@@ -33,12 +36,12 @@ public class S3TableManager extends TableManager {
 			return raw.asByteArray();
 		} catch (Exception e) {
 			log.error("Error reading table {} maetadata", name, e);
-			throw new PolarBearException("Error reading table " + name + " metadata", e);
+			throw new PolarBearException("Error reading table '" + name + "' metadata", e);
 		}
 	}
 
 	@Override
-	protected void write(String name, byte[] content) throws PolarBearException {
+	protected void writeDefinition(String name, byte[] content) throws PolarBearException {
 		try {
 			s3Client.putObject(
 					PutObjectRequest.builder()
@@ -47,8 +50,13 @@ public class S3TableManager extends TableManager {
 							.build(),
 					RequestBody.fromBytes(content));
 		} catch (Exception e) {
-			throw new PolarBearException("Error persisting table " + name + " metadata");
+			throw new PolarBearException("Error persisting table '" + name + "' metadata");
 		}
+	}
+
+	@Override
+	public Reader read(String name, LocalDateTime from, LocalDateTime to, long maxRows) throws PolarBearException {
+		return null;
 	}
 
 	private String makeKey(String name) {

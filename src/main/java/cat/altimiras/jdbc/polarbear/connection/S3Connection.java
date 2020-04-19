@@ -2,7 +2,7 @@ package cat.altimiras.jdbc.polarbear.connection;
 
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.S3TableManager;
-import cat.altimiras.jdbc.polarbear.query.QueryParser;
+import cat.altimiras.jdbc.polarbear.query.QueryManager;
 import cat.altimiras.jdbc.polarbear.statement.S3Statement;
 import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -51,7 +51,7 @@ public class S3Connection extends PolarBearConnection {
 			this.bucket = target.split("/")[1];
 
 			this.tableManager = new S3TableManager(s3Client, bucket);
-			this.queryParser = new QueryParser(this.tableManager);
+			this.queryManager = new QueryManager(this.tableManager);
 
 		} catch (InvalidPathException e) {
 			throw new PolarBearException(target + "is not a file system path", e);
@@ -63,7 +63,7 @@ public class S3Connection extends PolarBearConnection {
 
 	@Override
 	public Statement createStatement() throws SQLException {
-		return new S3Statement(target, tableManager, queryParser, this, s3Client, bucket);
+		return new S3Statement(target, tableManager, queryManager, this, s3Client, bucket);
 	}
 
 	@Override

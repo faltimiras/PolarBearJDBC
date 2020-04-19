@@ -1,14 +1,18 @@
 package cat.altimiras.jdbc.polarbear.def;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 
-public class Column {
+public class PartitionDefinition {
 
-	private String name;
-	private String type;
+	private String columnName;
+	private String partitionsFormat;
+	@JsonDeserialize(using = DateSerializer.class)
+	private LocalDateTime since;
+	private int step;
 
+/*
 	private String dateFormat = "yyyy/MM/dd";
 	private String timeFormat = "HH:mm:ss";
 	private String timestampFormat = "yyyy/MM/dd HH:mm:ss";
@@ -20,31 +24,6 @@ public class Column {
 	private SimpleDateFormat timeFormatter;
 	@JsonIgnore
 	private SimpleDateFormat timestampFormatter;
-
-
-	public Column() {
-	}
-
-	public Column(String name, String type) {
-		this.name = name;
-		this.type = type;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
 
 	public SimpleDateFormat getDateFormat() {
 		if (dateFormatter == null) {
@@ -86,5 +65,37 @@ public class Column {
 	public void setUnixtime(Boolean unixtime) {
 		isUnixtime = unixtime;
 	}
+	*/
 
+	public String getColumnName() {
+		return columnName;
+	}
+
+	public void setColumnName(String columnName) {
+		this.columnName = columnName;
+	}
+
+	public String getPartitionsFormat() {
+		return partitionsFormat;
+	}
+
+	public void setPartitionsFormat(String partitionsFormat) {
+		this.partitionsFormat = partitionsFormat;
+	}
+
+	public LocalDateTime getSince() {
+		return since;
+	}
+
+	public void setSince(LocalDateTime since) {
+		this.since = since;
+	}
+
+	public int getStep() {
+		return step;
+	}
+
+	public void setStep(int step) {
+		this.step = step;
+	}
 }
