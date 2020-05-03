@@ -1,8 +1,8 @@
 package cat.altimiras.jdbc.polarbear.resultset;
 
-import cat.altimiras.jdbc.polarbear.execution.Planner;
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
+import cat.altimiras.jdbc.polarbear.execution.Planner;
 import cat.altimiras.jdbc.polarbear.query.Field;
 import cat.altimiras.jdbc.polarbear.statement.S3FilesIterator;
 import java.io.BufferedReader;
@@ -77,7 +77,8 @@ public class S3ResultSet extends PolarBearResultSet {
 					log.debug("Empty line detected. Ignoring it");
 					return nextLine();
 				} else {
-					row = (String[]) rowDeserializer.parse(rowRaw.getBytes());
+					String[] storedRow = rowDeserializer.parse(rowRaw.getBytes());
+					this.row = planner.process(storedRow);
 					return true;
 				}
 			}

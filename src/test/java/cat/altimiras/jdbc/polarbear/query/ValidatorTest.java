@@ -60,13 +60,13 @@ public class ValidatorTest {
 	@Test
 	public void notExistWithTableField() throws Exception {
 		Validator validator = new Validator(tableManager);
-		Query query = parser.parse("select table.notexist from test_table2");
+		Query query = parser.parse("select table.field from test_table2");
 
 		try {
 			validator.validate(query);
 			fail("Must fail");
 		} catch (PolarBearException e){
-			assertEquals("Table 'table' do not exist", e.getMessage());
+			assertEquals("Table 'table' defined on field 'field' do not exist", e.getMessage());
 		}
 	}
 
@@ -109,7 +109,6 @@ public class ValidatorTest {
 
 	@Test
 	public void moreThanOnePartitionedTable() throws Exception{
-
 		Validator validator = new Validator(tableManager);
 		Query query = parser.parse("select f1 as a, f2 as a from test_table2, test_table1 where notExist > 44");
 

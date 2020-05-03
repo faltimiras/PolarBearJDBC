@@ -1,8 +1,9 @@
 package cat.altimiras.jdbc.polarbear.resultset;
 
-import cat.altimiras.jdbc.polarbear.execution.Planner;
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
+import cat.altimiras.jdbc.polarbear.execution.Planner;
+import cat.altimiras.jdbc.polarbear.execution.Row;
 import cat.altimiras.jdbc.polarbear.query.Field;
 import cat.altimiras.jdbc.polarbear.statement.DirsIterator;
 import java.nio.file.Files;
@@ -114,7 +115,7 @@ public class FSResultSet extends PolarBearResultSet {
 		return false;
 	}
 
-	void setCurrentRow(String[] row) {
+	void setCurrentRow(Row row) {
 		this.row = row;
 	}
 

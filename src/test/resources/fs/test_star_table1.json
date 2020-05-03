@@ -1,11 +1,11 @@
 {
-  "name" : "test_start_table1",
-  "format" : "csv",
+  "name" : "test_star_table1",
+  "format" : "json",
   "columns" : [
     {
       "name" : "f1",
       "type" : "TEXT",
-      "isPK" : true
+      "pk" : true
     },
     {
       "name" : "f2",

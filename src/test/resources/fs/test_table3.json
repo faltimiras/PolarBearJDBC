@@ -1,17 +1,21 @@
 {
-  "name" : "test_table1",
+  "name" : "test_table3",
   "format" : "csv",
   "notFoundMaxLimit" : 5,
   "columns" : [
     {
-      "name" : "f1",
+      "name" : "a",
+      "type" : "TEXT"
+    },
+    {
+      "name" : "b",
       "type" : "TEXT"
     }
   ],
   "partition" : {
     "columnName" : "ts",
-    "partitionsFormat" : "YYYY/MM/dd/HH/mm",
+    "partitionsFormat" : "YYYY/MM/dd/",
     "since" : "2019-01-01 12:58",
-    "step" : 1
+    "step" : 44640
   }
 }

@@ -2,14 +2,12 @@ package cat.altimiras.jdbc.polarbear.format;
 
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
-
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RowFormatterFactory {
-
-	private static Map<String, Class> formatters = new HashMap<>(1);
+	private static final Map<String, Class> formatters = new HashMap<>(1);
 
 	static {
 		formatters.put("csv", CSVDeserializer.class); //TODO: lib in classpath should be able to add formats
@@ -27,7 +25,6 @@ public class RowFormatterFactory {
 
 			Constructor c = formatterClass.getConstructor(TableDefinition.class);
 			return (RowDeserializer) c.newInstance(tableDefinition);
-
 		} catch (Exception e) {
 			throw new PolarBearException("Formatter can not initialized", e);
 		}

@@ -1,8 +1,8 @@
 package cat.altimiras.jdbc.polarbear.statement;
 
-import cat.altimiras.jdbc.polarbear.execution.Planner;
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableManager;
+import cat.altimiras.jdbc.polarbear.execution.Planner;
 import cat.altimiras.jdbc.polarbear.query.Query;
 import cat.altimiras.jdbc.polarbear.query.QueryManager;
 import cat.altimiras.jdbc.polarbear.resultset.FSResultSet;
@@ -38,7 +38,7 @@ public class FSStatement extends PolarBearStatement {
 			planner.getMainTable().getPartition().getStep(),
 			planner.getMainTable().getNotFoundMaxLimit());
 
-		resultSet = new FSResultSet(query.getFields(), planner.getMainTable(), dirsIterator, planner,this);
+		resultSet = new FSResultSet(query.getFields(), planner.getMainTable(), dirsIterator, planner, this);
 		return resultSet;
 	}
 }

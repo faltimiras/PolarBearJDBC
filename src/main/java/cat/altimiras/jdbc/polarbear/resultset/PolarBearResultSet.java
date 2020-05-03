@@ -1,8 +1,11 @@
 package cat.altimiras.jdbc.polarbear.resultset;
 
-import cat.altimiras.jdbc.polarbear.execution.Planner;
 import cat.altimiras.jdbc.polarbear.PolarBearException;
+import cat.altimiras.jdbc.polarbear.def.ColumnDefinition;
+import cat.altimiras.jdbc.polarbear.def.ColumnDefinition.Type;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
+import cat.altimiras.jdbc.polarbear.execution.Planner;
+import cat.altimiras.jdbc.polarbear.execution.Row;
 import cat.altimiras.jdbc.polarbear.format.RowDeserializer;
 import cat.altimiras.jdbc.polarbear.format.RowFormatterFactory;
 import cat.altimiras.jdbc.polarbear.query.Field;
@@ -26,15 +29,13 @@ import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class PolarBearResultSet implements ResultSet {
-	protected final TableDefinition tableDefinition;
-
 	protected final RowDeserializer rowDeserializer;
 
 	protected final List<Field> queryFields;
@@ -43,13 +44,15 @@ public abstract class PolarBearResultSet implements ResultSet {
 
 	protected final Planner planner;
 
-	// position in the raw file by name
-	protected Map<String, Integer> queryFieldsByNameInFile;
+	protected final TableDefinition tableDefinition;
 
 	// position in the row by name. row can contain less fields than in file, due to select field1... reduce number of fields
 	protected Map<String, Integer> queryFieldsByNameInRow;
 
-	protected String[] row;
+	// column position <-> data formatter
+	private Map<Integer, SimpleDateFormat> dateFormatters = new HashMap<>();
+
+	protected Row row;
 
 	public PolarBearResultSet(List<Field> queryFields, TableDefinition tableDefinition, Planner planner,
 		Statement statement) throws PolarBearException {
@@ -62,18 +65,11 @@ public abstract class PolarBearResultSet implements ResultSet {
 	}
 
 	private void byIdentifier(List<Field> queryFields) {
-		//TODO
-		/*
-		Map<String, Integer> tableColumnsByName = tableDefinition.getColumnsPositionByName();
-		queryFieldsByNameInFile = new LinkedHashMap(queryFields.size());
 		queryFieldsByNameInRow = new HashMap<>(queryFields.size());
 		for (int i = 0; i < queryFields.size(); i++) {
 			Field field = queryFields.get(i);
-			int pos = tableColumnsByName.get(field.getName());
-			queryFieldsByNameInFile.put(field.getAlias() == null ? field.getName() : field.getAlias(), pos);
 			queryFieldsByNameInRow.put(field.getAlias() == null ? field.getName() : field.getAlias(), i);
 		}
-		 */
 	}
 
 	@Override
@@ -89,7 +85,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public String getString(int columnIndex) throws SQLException {
 		try {
-			return row[columnIndex - 1];
+			return row.getValue(columnIndex - 1);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		}
@@ -98,7 +94,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public boolean getBoolean(int columnIndex) throws SQLException {
 		try {
-			return Boolean.valueOf(row[columnIndex - 1]);
+			return Boolean.valueOf(row.getValue(columnIndex - 1));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		}
@@ -107,7 +103,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public byte getByte(int columnIndex) throws SQLException {
 		try {
-			return Byte.valueOf(row[columnIndex - 1]);
+			return Byte.valueOf(row.getValue(columnIndex - 1));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -118,7 +114,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public short getShort(int columnIndex) throws SQLException {
 		try {
-			return Short.valueOf(row[columnIndex - 1]);
+			return Short.valueOf(row.getValue(columnIndex - 1));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -129,7 +125,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public int getInt(int columnIndex) throws SQLException {
 		try {
-			return Integer.valueOf(row[columnIndex - 1]);
+			return Integer.valueOf(row.getValue(columnIndex - 1));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -140,7 +136,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public long getLong(int columnIndex) throws SQLException {
 		try {
-			return Long.valueOf(row[columnIndex - 1]);
+			return Long.valueOf(row.getValue(columnIndex - 1));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -151,7 +147,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public float getFloat(int columnIndex) throws SQLException {
 		try {
-			return Float.valueOf(row[columnIndex - 1]);
+			return Float.valueOf(row.getValue(columnIndex - 1));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -162,7 +158,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public double getDouble(int columnIndex) throws SQLException {
 		try {
-			return Double.valueOf(row[columnIndex - 1]);
+			return Double.valueOf(row.getValue(columnIndex - 1));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -173,7 +169,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
 		try {
-			return BigDecimal.valueOf(Long.valueOf(row[columnIndex - 1]), scale);
+			return BigDecimal.valueOf(Long.valueOf(row.getValue(columnIndex - 1)), scale);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -184,7 +180,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public byte[] getBytes(int columnIndex) throws SQLException {
 		try {
-			return row[columnIndex - 1].getBytes();
+			return row.getValue(columnIndex - 1).getBytes();
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		}
@@ -192,13 +188,17 @@ public abstract class PolarBearResultSet implements ResultSet {
 
 	@Override
 	public Date getDate(int columnIndex) throws SQLException {
-		/*
 		try {
-			if (tableDefinition.getColumnDefinitions().get(columnIndex - 1).getUnixtime()) {
-				return new Date(Long.valueOf(row[columnIndex - 1]));
+			ColumnDefinition definition = tableDefinition.getColumnDefinitions().get(columnIndex - 1);
+			if (definition.getType()== Type.LONG) {
+				return new Date(Long.valueOf(row.getValue(columnIndex - 1)));
 			} else {
-				SimpleDateFormat formatter = tableDefinition.getColumnDefinitions().get(columnIndex - 1).getDateFormat();
-				return new Date(formatter.parse(row[columnIndex - 1]).getTime());
+				SimpleDateFormat formatter = dateFormatters.get(definition.getPosition());
+				if (formatter == null){
+					formatter = new SimpleDateFormat(definition.getFormat());
+					dateFormatters.put(definition.getPosition(), formatter);
+				}
+				return new Date(formatter.parse(row.getValue(columnIndex - 1)).getTime());
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
@@ -206,21 +206,21 @@ public abstract class PolarBearResultSet implements ResultSet {
 		} catch (Exception e) {
 			throw new PolarBearException("Field is not a Date", e);
 		}
-
-		 */
-		//TODO
-		return null;
 	}
 
 	@Override
 	public Time getTime(int columnIndex) throws SQLException {
-		/*
 		try {
-			if (tableDefinition.getColumnDefinitions().get(columnIndex - 1).getUnixtime()) {
-				return new Time(Long.valueOf(row[columnIndex - 1]));
+			ColumnDefinition definition = tableDefinition.getColumnDefinitions().get(columnIndex - 1);
+			if (definition.getType()== Type.LONG) {
+				return new Time(Long.valueOf(row.getValue(columnIndex - 1)));
 			} else {
-				SimpleDateFormat formatter = tableDefinition.getColumnDefinitions().get(columnIndex - 1).getTimeFormat();
-				return new Time(formatter.parse(row[columnIndex - 1]).getTime());
+				SimpleDateFormat formatter = dateFormatters.get(definition.getPosition());
+				if (formatter == null){
+					formatter = new SimpleDateFormat(definition.getFormat());
+					dateFormatters.put(definition.getPosition(), formatter);
+				}
+				return new Time(formatter.parse(row.getValue(columnIndex - 1)).getTime());
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
@@ -228,29 +228,27 @@ public abstract class PolarBearResultSet implements ResultSet {
 		} catch (Exception e) {
 			throw new PolarBearException("Field is not a Time", e);
 		}
-
-		 */
-		return null;
 	}
 
 	@Override
 	public Timestamp getTimestamp(int columnIndex) throws SQLException {
-		/*
 		try {
-			if (tableDefinition.getColumnDefinitions().get(columnIndex - 1).getUnixtime()) {
-				return new Timestamp(Long.valueOf(row[columnIndex - 1]));
+			ColumnDefinition definition = tableDefinition.getColumnDefinitions().get(columnIndex - 1);
+			if (definition.getType()== Type.LONG) {
+				return new Timestamp(Long.valueOf(row.getValue(columnIndex - 1)));
 			} else {
-				SimpleDateFormat formatter = tableDefinition.getColumnDefinitions().get(columnIndex - 1).getTimestampFormat();
-				return new Timestamp(formatter.parse(row[columnIndex - 1]).getTime());
+				SimpleDateFormat formatter = dateFormatters.get(definition.getPosition());
+				if (formatter == null){
+					formatter = new SimpleDateFormat(definition.getFormat());
+					dateFormatters.put(definition.getPosition(), formatter);
+				}
+				return new Timestamp(formatter.parse(row.getValue(columnIndex - 1)).getTime());
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (Exception e) {
 			throw new PolarBearException("Field is not a Timestamp", e);
 		}
-
-		 */
-		return null;
 	}
 
 	@Override
@@ -266,7 +264,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public InputStream getBinaryStream(int columnIndex) throws SQLException {
 		try {
-			return new ByteArrayInputStream(row[columnIndex - 1].getBytes());
+			return new ByteArrayInputStream(row.getValue(columnIndex - 1).getBytes());
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		}
@@ -275,7 +273,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public String getString(String columnLabel) throws SQLException {
 		try {
-			return row[queryFieldsByNameInRow.get(columnLabel)];
+			return row.getValue(queryFieldsByNameInRow.get(columnLabel));
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		}
@@ -284,7 +282,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public boolean getBoolean(String columnLabel) throws SQLException {
 		try {
-			return Boolean.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
+			return Boolean.valueOf(row.getValue(queryFieldsByNameInRow.get(columnLabel)));
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		}
@@ -293,7 +291,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public byte getByte(String columnLabel) throws SQLException {
 		try {
-			return Byte.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
+			return Byte.valueOf(row.getValue(queryFieldsByNameInRow.get(columnLabel)));
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -304,7 +302,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public short getShort(String columnLabel) throws SQLException {
 		try {
-			return Short.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
+			return Short.valueOf(row.getValue(queryFieldsByNameInRow.get(columnLabel)));
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -315,7 +313,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public int getInt(String columnLabel) throws SQLException {
 		try {
-			return Integer.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
+			return Integer.valueOf(row.getValue(queryFieldsByNameInRow.get(columnLabel)));
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -326,7 +324,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public long getLong(String columnLabel) throws SQLException {
 		try {
-			return Long.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
+			return Long.valueOf(row.getValue(queryFieldsByNameInRow.get(columnLabel)));
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -337,7 +335,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public float getFloat(String columnLabel) throws SQLException {
 		try {
-			return Float.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
+			return Float.valueOf(row.getValue(queryFieldsByNameInRow.get(columnLabel)));
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -348,7 +346,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public double getDouble(String columnLabel) throws SQLException {
 		try {
-			return Double.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]);
+			return Double.valueOf(row.getValue(queryFieldsByNameInRow.get(columnLabel)));
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -359,7 +357,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
 		try {
-			return BigDecimal.valueOf(Long.valueOf(row[queryFieldsByNameInRow.get(columnLabel)]), scale);
+			return BigDecimal.valueOf(Long.valueOf(row.getValue(queryFieldsByNameInRow.get(columnLabel))), scale);
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -370,7 +368,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public byte[] getBytes(String columnLabel) throws SQLException {
 		try {
-			return row[queryFieldsByNameInRow.get(columnLabel)].getBytes();
+			return row.getValue(queryFieldsByNameInRow.get(columnLabel)).getBytes();
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		}
@@ -406,7 +404,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 
 	@Override
 	public InputStream getBinaryStream(String columnLabel) throws SQLException {
-		return new ByteArrayInputStream(row[queryFieldsByNameInRow.get(columnLabel)].getBytes());
+		return new ByteArrayInputStream(row.getValue(queryFieldsByNameInRow.get(columnLabel)).getBytes());
 	}
 
 	@Override
@@ -456,7 +454,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
 		try {
-			return new BigDecimal(row[columnIndex - 1]);
+			return new BigDecimal(row.getValue(columnIndex - 1));
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -467,7 +465,7 @@ public abstract class PolarBearResultSet implements ResultSet {
 	@Override
 	public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
 		try {
-			return new BigDecimal(row[queryFieldsByNameInRow.get(columnLabel)]);
+			return new BigDecimal(row.getValue(queryFieldsByNameInRow.get(columnLabel)));
 		} catch (NullPointerException e) {
 			throw new PolarBearException("Field does not exit");
 		} catch (NumberFormatException e) {
@@ -546,23 +544,23 @@ public abstract class PolarBearResultSet implements ResultSet {
 	}
 
 	@Override
-	public void setFetchDirection(int direction) throws SQLException {
-
-	}
-
-	@Override
 	public int getFetchDirection() throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void setFetchSize(int rows) throws SQLException {
+	public void setFetchDirection(int direction) throws SQLException {
 
 	}
 
 	@Override
 	public int getFetchSize() throws SQLException {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setFetchSize(int rows) throws SQLException {
+
 	}
 
 	@Override

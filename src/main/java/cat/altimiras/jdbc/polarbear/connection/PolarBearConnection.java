@@ -2,14 +2,26 @@ package cat.altimiras.jdbc.polarbear.connection;
 
 import cat.altimiras.jdbc.polarbear.def.TableManager;
 import cat.altimiras.jdbc.polarbear.query.QueryManager;
-
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.NClob;
+import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
 public abstract class PolarBearConnection implements Connection {
-
 	final protected String target;
 
 	protected TableManager tableManager;
@@ -47,11 +59,6 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
-	public void setAutoCommit(boolean autoCommit) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public boolean isWrapperFor(Class<?> iface) throws SQLException {
 		return false;
 	}
@@ -59,6 +66,11 @@ public abstract class PolarBearConnection implements Connection {
 	@Override
 	public boolean getAutoCommit() throws SQLException {
 		return false;
+	}
+
+	@Override
+	public void setAutoCommit(boolean autoCommit) throws SQLException {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -87,18 +99,13 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
-	public void setReadOnly(boolean readOnly) throws SQLException {
-
-	}
-
-	@Override
 	public boolean isReadOnly() throws SQLException {
 		return false;
 	}
 
 	@Override
-	public void setCatalog(String catalog) throws SQLException {
-		throw new UnsupportedOperationException();
+	public void setReadOnly(boolean readOnly) throws SQLException {
+
 	}
 
 	@Override
@@ -107,12 +114,17 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
-	public void setTransactionIsolation(int level) throws SQLException {
+	public void setCatalog(String catalog) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public int getTransactionIsolation() throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setTransactionIsolation(int level) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -132,7 +144,8 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
-	public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+	public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
+		throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -152,12 +165,12 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
-	public void setHoldability(int holdability) throws SQLException {
+	public int getHoldability() throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int getHoldability() throws SQLException {
+	public void setHoldability(int holdability) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -182,17 +195,20 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
-	public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+	public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
+		throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+	public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
+		int resultSetHoldability) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+	public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
+		int resultSetHoldability) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -242,17 +258,17 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
-	public void setClientInfo(Properties properties) throws SQLClientInfoException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public String getClientInfo(String name) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Properties getClientInfo() throws SQLException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setClientInfo(Properties properties) throws SQLClientInfoException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -267,13 +283,13 @@ public abstract class PolarBearConnection implements Connection {
 	}
 
 	@Override
-	public void setSchema(String schema) throws SQLException {
-		throw new UnsupportedOperationException();
+	public String getSchema() throws SQLException {
+		return null;
 	}
 
 	@Override
-	public String getSchema() throws SQLException {
-		return null;
+	public void setSchema(String schema) throws SQLException {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -290,6 +306,4 @@ public abstract class PolarBearConnection implements Connection {
 	public int getNetworkTimeout() throws SQLException {
 		return 0;
 	}
-
-
 }

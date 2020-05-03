@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +26,17 @@ public class Planner {
 
 	//star tables cache
 	//TODO ehcache??
-	private static Map<String, Map<String, String[]>> starTablesCache = new HashMap<>();
+	private static final Map<String, Map<String, String[]>> starTables = new HashMap<>();
 
-	private Query query;
+	private final Query query;
 
-	private TableDefinition mainTable;
+	private final Selector selector;
+
+	private final Joiner joiner;
+
+	private final Filter filter;
+
+	private Table mainTable;
 
 	private LocalDateTime tsUpperLimit;
 
@@ -39,10 +46,9 @@ public class Planner {
 		this.query = query;
 
 		for (Table table : query.getTables()) {
-			TableDefinition tableDef = tableManager.getTable(table.getName());
-			if (tableDef.isStarTable()) { //load tables into memory
+			if (table.getDefinition().isStarTable()) { //load tables into memory
 				log.debug("Loading star table {}", table.getName());
-				List<Integer> pkPositions = tableDef.getPKPositions();
+				List<Integer> pkPositions = table.getDefinition().getPKPositions();
 				Reader reader = tableManager.read(table.getName(), null, null, -1);
 				Map<String, String[]> tableInMemory = new HashMap<>();
 				while (reader.hasNext()) {
@@ -50,57 +56,46 @@ public class Planner {
 					String pk = createPK(row, pkPositions);
 					tableInMemory.put(pk, row);
 				}
-				starTablesCache.put(table.getName(), tableInMemory);
+				starTables.put(table.getName(), tableInMemory);
 			} else {
-				mainTable = tableDef;
+				mainTable = table;
 			}
 		}
 
 		//set query limits
-		setLimits(query.getWhere(), mainTable.getPartition().getColumnName());
+		setLimits(query.getWhere(), mainTable.getDefinition().getPartition().getColumnName());
 
 		if (tsLowerLimit == null && tsUpperLimit == null) {
 			log.error("Not time window defined, full scan not allowed!");
 			throw new PolarBearException("Not time window defined, full scan not allowed");
 		}
+
+		filter = new Filter(mainTable.getDefinition());
+		joiner = new Joiner(mainTable, query.getTables(), query.getWhere(), starTables);
+		selector = new Selector(mainTable.getDefinition(), query);
 	}
 
 	/**
 	 * @param row row from time partitioned table
 	 * @return null if row do not meet query filters, String[] with the results with fields properly ordered, adding fields from star tables, and removing not selected ones.
 	 */
-	public String[] process(String[] row) throws PolarBearException {
-
+	public Row process(String[] row) throws PolarBearException {
 		//filter. Discard rows from main table that do not met conditions
-		Filter filter = new Filter(mainTable);
-		if (filter.meets(row, query.getWhere())){
-
-			//complete with start tables
-			Joiner joiner = new Joiner();
-			String[] fatRow = joiner.join(row);
-
-			//select fields
-			Selector selector = new Selector();
-			return selector.select(fatRow);
-		}
-		else {
+		if (filter.meets(row, query.getWhere())) {
+			return new Row(selector.getRealPositions(), joiner.join(row));
+		} else {
 			log.debug("Row {} discarded, where not met", row);
 			return null;
 		}
 	}
 
 	private String createPK(String[] row, List<Integer> pkPositions) {
-		StringBuffer sb = new StringBuffer();
-		for (Integer pos : pkPositions) {
-			sb.append(row[pos]);
-			sb.append(SEPARATOR);
-		}
-		return sb.toString();
+		return pkPositions.stream().map(p -> row[p]).collect(Collectors.joining(SEPARATOR));
 	}
 
 	public LocalDateTime getTsLowerLimit() {
 		if (tsLowerLimit == null) {
-			return mainTable.getPartition().getSince();
+			return mainTable.getDefinition().getPartition().getSince();
 		} else {
 			return tsLowerLimit;
 		}
@@ -115,7 +110,7 @@ public class Planner {
 	}
 
 	public TableDefinition getMainTable() {
-		return mainTable;
+		return mainTable.getDefinition();
 	}
 
 	private void setLimits(Expr expr, String tsColumnName) throws PolarBearException {

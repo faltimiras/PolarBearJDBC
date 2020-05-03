@@ -1,5 +1,9 @@
 package cat.altimiras.jdbc.polarbear.statement;
 
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -11,25 +15,25 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
-
 public class S3FilesIterator implements Iterator<InputStream> {
-
 	private final static Logger log = LoggerFactory.getLogger(S3FilesIterator.class);
 
 	private final S3Client s3Client;
+
 	private final String bucket;
+
 	private final String table;
 
 	private final DateTimeFormatter pathGenerator;
-	private final LocalDateTime to;
-	private LocalDateTime current;
-	private Iterator<S3Object> it;
 
-	public S3FilesIterator(S3Client s3Client, String bucket, String table, LocalDateTime from, LocalDateTime to, String pathPattern) {
+	private final LocalDateTime to;
+
+	private final LocalDateTime current;
+
+	private final Iterator<S3Object> it;
+
+	public S3FilesIterator(S3Client s3Client, String bucket, String table, LocalDateTime from, LocalDateTime to,
+		String pathPattern) {
 		this.s3Client = s3Client;
 		this.bucket = bucket;
 		this.table = table;
@@ -47,10 +51,10 @@ public class S3FilesIterator implements Iterator<InputStream> {
 		String prefix = pathPattern.startsWith("/") ? table + path : table + "/" + path;
 
 		ListObjectsV2Request listReq = ListObjectsV2Request.builder()
-				.bucket(bucket)
-				.prefix(prefix)
-				.maxKeys(500)
-				.build();
+			.bucket(bucket)
+			.prefix(prefix)
+			.maxKeys(500)
+			.build();
 
 		ListObjectsV2Iterable files = s3Client.listObjectsV2Paginator(listReq);
 
@@ -85,10 +89,10 @@ public class S3FilesIterator implements Iterator<InputStream> {
 
 		log.debug("Getting object {}", s3Object.key());
 		ResponseInputStream<GetObjectResponse> raw = s3Client.getObject(
-				GetObjectRequest.builder()
-						.bucket(bucket)
-						.key(s3Object.key()).build(),
-				ResponseTransformer.toInputStream());
+			GetObjectRequest.builder()
+				.bucket(bucket)
+				.key(s3Object.key()).build(),
+			ResponseTransformer.toInputStream());
 		return raw;
 	}
 }

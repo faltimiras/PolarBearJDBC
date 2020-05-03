@@ -3,7 +3,6 @@ package cat.altimiras.jdbc.polarbear.statement;
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableManager;
 import cat.altimiras.jdbc.polarbear.query.QueryManager;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,16 +10,22 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 
 public abstract class PolarBearStatement implements Statement {
-
 	protected final String target;
+
 	protected final QueryManager queryManager;
+
 	protected final TableManager tableManager;
+
 	protected final Connection connection;
+
 	protected ResultSet resultSet = null;
+
 	protected int maxRows = 0; //disabled
+
 	protected boolean close = false;
 
-	public PolarBearStatement(String target, TableManager tableManager, QueryManager queryManager, Connection connection) {
+	public PolarBearStatement(String target, TableManager tableManager, QueryManager queryManager,
+		Connection connection) {
 		this.target = target;
 		this.queryManager = queryManager;
 		this.tableManager = tableManager;
@@ -81,14 +86,14 @@ public abstract class PolarBearStatement implements Statement {
 	}
 
 	@Override
-	public boolean execute(String sql, int[] columnIndexes) throws SQLException {
-		executeQuery(sql);
-		return true;
+	public void setMaxRows(int max) throws SQLException {
+		this.maxRows = max;
 	}
 
 	@Override
-	public void setMaxRows(int max) throws SQLException {
-		this.maxRows = max;
+	public boolean execute(String sql, int[] columnIndexes) throws SQLException {
+		executeQuery(sql);
+		return true;
 	}
 
 	@Override
@@ -108,18 +113,23 @@ public abstract class PolarBearStatement implements Statement {
 	}
 
 	@Override
-	public boolean isClosed() throws SQLException {
-		return close;
-	}
-
-	@Override
 	public void setQueryTimeout(int seconds) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
+	public boolean isClosed() throws SQLException {
+		return close;
+	}
+
+	@Override
 	public boolean isPoolable() throws SQLException {
 		return false;
+	}
+
+	@Override
+	public void setPoolable(boolean poolable) throws SQLException {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -137,21 +147,15 @@ public abstract class PolarBearStatement implements Statement {
 		throw new UnsupportedOperationException();
 	}
 
+	//UNSUPPORTED OPS
+
 	@Override
 	public void clearWarnings() throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
-
-	//UNSUPPORTED OPS
-
 	@Override
 	public void setCursorName(String name) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setPoolable(boolean poolable) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -176,6 +180,10 @@ public abstract class PolarBearStatement implements Statement {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public int getFetchDirection() throws SQLException {
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public void setFetchDirection(int direction) throws SQLException {
@@ -183,17 +191,12 @@ public abstract class PolarBearStatement implements Statement {
 	}
 
 	@Override
-	public int getFetchDirection() throws SQLException {
+	public int getFetchSize() throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void setFetchSize(int rows) throws SQLException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int getFetchSize() throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 

@@ -4,9 +4,9 @@ import java.nio.file.Path;
 import java.util.Iterator;
 
 public class SingleDirIterator implements Iterator<Path> {
-
 	private boolean hasNext = true;
-	private Path path;
+
+	private final Path path;
 
 	public SingleDirIterator(Path path) {
 		this.path = path;
@@ -16,9 +16,8 @@ public class SingleDirIterator implements Iterator<Path> {
 	public boolean hasNext() {
 		try {
 			return hasNext;
-		}
-		finally {
-			this.hasNext=false;
+		} finally {
+			this.hasNext = false;
 		}
 	}
 

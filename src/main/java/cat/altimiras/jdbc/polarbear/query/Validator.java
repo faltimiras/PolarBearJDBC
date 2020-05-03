@@ -3,7 +3,6 @@ package cat.altimiras.jdbc.polarbear.query;
 import cat.altimiras.jdbc.polarbear.PolarBearException;
 import cat.altimiras.jdbc.polarbear.def.TableDefinition;
 import cat.altimiras.jdbc.polarbear.def.TableManager;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,13 +12,15 @@ import java.util.Map;
  * - Fields in select exist in the table
  * - Fields names is deterministic
  * - Only one partitioned table in the query
+ *
+ * Completes Tables and fields with tableDefinitions
  */
 class Validator {
+	private final TableManager tableManager;
 
-	private TableManager tableManager;
+	private final Map<String, TableDefinition> tableByName = new HashMap<>();
 
-	private Map<String, TableDefinition> tableByName = new HashMap<>();
-	private Map<String, TableDefinition> tableByAlias = new HashMap<>();
+	private final Map<String, TableDefinition> tableByAlias = new HashMap<>();
 
 	public Validator(TableManager tableManager) {
 		this.tableManager = tableManager;
@@ -53,6 +54,8 @@ class Validator {
 					onePartitionedTable = true;
 				}
 			}
+
+			table.setDefinition(tableDef);
 
 			tableByName.put(table.getName(), tableDef);
 			if (table.getAlias() != null) {
@@ -124,34 +127,46 @@ class Validator {
 	 */
 	private void checkField(Field field) throws PolarBearException {
 		if (field.getTable() == null) { //if field do not have table look for it.
-			field.setTable(findFieldInTables(field.getName()).getName());
+			completeField(field);
 		} else { //check field exist in table if defined
-			TableDefinition tableDef = tableManager.getTable(field.getTable());
+			TableDefinition tableDef = tableByName.getOrDefault(field.getTable(), tableByAlias.get(field.getTable()));
+			//TableDefinition tableDef = tableManager.getTable(field.getTable());
 			if (tableDef == null) {
-				throw new PolarBearException("Table '" + field.getTable() + "' defined on field '" + field.getName() + "' do not exist");
+				throw new PolarBearException(
+					"Table '" + field.getTable() + "' defined on field '" + field.getName() + "' do not exist");
 			} else {
 				if (!tableDef.getColumnsByName().containsKey(field.getName())) {
-					throw new PolarBearException("Field '" + field.getName() + "' do not exist on table '" + field.getTable() + "'");
+					throw new PolarBearException(
+						"Field '" + field.getName() + "' do not exist on table '" + field.getTable() + "'");
 				}
 			}
+			field.setTableDefinition(tableDef);
 		}
 	}
 
 	/**
-	 * Looks for the field in the FROM tables
+	 * Looks for the field in the FROM tables and add the table if missing
 	 *
-	 * @param name
-	 * @return
 	 * @throws PolarBearException if field doesn't exist
 	 */
-	private TableDefinition findFieldInTables(String name) throws PolarBearException {
+	private void completeField(Field field) throws PolarBearException {
 
-		for (TableDefinition table : tableByName.values()) {
-			if (table.getColumnsByName().containsKey(name)) {
-				return table;
+		boolean find = false;
+		for (TableDefinition tableDef : tableByName.values()) {
+			if (tableDef.getColumnsByName().containsKey(field.getName())) {
+				field.setTable(tableDef.getName());
+				field.setTableDefinition(tableDef);
+				find = true;
+			}
+			if (tableDef.getPartition() != null && tableDef.getPartition().getColumnName().equals(field.getName())) {
+				field.setTs(true);
+				field.setTableDefinition(tableDef);
+				find = true;
 			}
 		}
 
-		throw new PolarBearException("Field '" + name + "' do not exist");
+		if (!find) {
+			throw new PolarBearException("Field '" + field.getName() + "' do not exist");
+		}
 	}
 }

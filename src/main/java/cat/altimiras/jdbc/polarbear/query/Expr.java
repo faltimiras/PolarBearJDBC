@@ -1,9 +1,10 @@
 package cat.altimiras.jdbc.polarbear.query;
 
 public class Expr {
-
 	private String operation;
+
 	private Object operand1;
+
 	private Object operand2;
 
 	public Expr() {
@@ -27,6 +28,10 @@ public class Expr {
 		return operand1;
 	}
 
+	public void setOperand1(Object operand1) {
+		this.operand1 = operand1;
+	}
+
 	public boolean isOperand1Field() {
 		return operand1 instanceof Field;
 	}
@@ -47,12 +52,12 @@ public class Expr {
 		return (Expr) operand1;
 	}
 
-	public void setOperand1(Object operand1) {
-		this.operand1 = operand1;
-	}
-
 	public Object getOperand2() {
 		return operand2;
+	}
+
+	public void setOperand2(Object operand2) {
+		this.operand2 = operand2;
 	}
 
 	public boolean isOperand2Field() {
@@ -73,9 +78,5 @@ public class Expr {
 
 	public Expr getOperand2AsExpr() {
 		return (Expr) operand2;
-	}
-
-	public void setOperand2(Object operand2) {
-		this.operand2 = operand2;
 	}
 }

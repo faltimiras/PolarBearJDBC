@@ -6,10 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class QueryManager {
-
 	private final static Logger log = LoggerFactory.getLogger(QueryManager.class);
 
-	private TableManager tableManager;
+	private final TableManager tableManager;
 
 	public QueryManager(TableManager tableManager) {
 		this.tableManager = tableManager;
@@ -31,8 +30,8 @@ public class QueryManager {
 		} catch (PolarBearException e) {
 			throw e;
 		} catch (Exception e) {
-			log.error("Unexpected error",e);
-			throw new PolarBearException("Unexpected error",e);
+			log.error("Unexpected error", e);
+			throw new PolarBearException("Unexpected error", e);
 		}
 	}
 }

@@ -16,7 +16,7 @@
       "type" : "FLOAT"
     },
     {
-      "name" : "ts",
+      "name" : "f4",
       "type" : "TEXT"
     }
   ],

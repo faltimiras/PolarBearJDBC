@@ -7,15 +7,13 @@ import cat.altimiras.jdbc.polarbear.io.FSPartitionedReader;
 import cat.altimiras.jdbc.polarbear.io.FSReader;
 import cat.altimiras.jdbc.polarbear.io.Reader;
 import cat.altimiras.jdbc.polarbear.statement.DirsIterator;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 public class FSTableManager extends TableManager {
-
-	private Path base;
+	private final Path base;
 
 	public FSTableManager(Path base) {
 		this.base = base;
@@ -29,7 +27,6 @@ public class FSTableManager extends TableManager {
 				throw new PolarBearException("Table '" + name + "' do not exist");
 			}
 			return Files.readAllBytes(metadata);
-
 		} catch (IOException e) {
 			throw new PolarBearException("Error reading table '" + name + "' metadata");
 		}
@@ -57,12 +54,12 @@ public class FSTableManager extends TableManager {
 			return new FSReader(base.resolve(name), rowDeserializer);
 		} else {
 			DirsIterator dirsIterator = new DirsIterator(
-					base.resolve(name),
-					from,
-					to,
-					tableDefinition.getPartition().getPartitionsFormat(),
-					tableDefinition.getPartition().getStep(),
-					tableDefinition.getNotFoundMaxLimit());
+				base.resolve(name),
+				from,
+				to,
+				tableDefinition.getPartition().getPartitionsFormat(),
+				tableDefinition.getPartition().getStep(),
+				tableDefinition.getNotFoundMaxLimit());
 
 			return new FSPartitionedReader(dirsIterator, rowDeserializer, maxRows);
 		}

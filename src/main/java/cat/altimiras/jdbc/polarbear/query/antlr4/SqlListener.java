@@ -1,5 +1,6 @@
 // Generated from Sql.g4 by ANTLR 4.7.2
 package cat.altimiras.jdbc.polarbear.query.antlr4;
+
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**

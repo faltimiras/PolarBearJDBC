@@ -22,7 +22,10 @@ class Filter {
 			Object operand1 = expr.getOperand1();
 			Object operand2 = expr.getOperand2();
 
-			if (!(operand1 instanceof Expr) && !(operand2 instanceof Expr)) {
+			if (operand1 instanceof Field && operand2 instanceof Field) {
+				//it is a join between to fields, not a filter
+				return true;
+			} else if (!(operand1 instanceof Expr) && !(operand2 instanceof Expr)) {
 				return evaluate(row, operand1, operand2, expr.getOperation());
 			} else { //and | or | not
 				if (expr.getOperation().equalsIgnoreCase("AND")) {
@@ -45,12 +48,21 @@ class Filter {
 		Object val1 = null;
 		Object val2 = null;
 		if (operand1 instanceof Field) {
-			ColumnDefinition columnDefinition = tableDefinition.getColumnsByName().get(((Field) operand1).getName());
-			type = columnDefinition.getType();
-			val1 = convert(row[columnDefinition.getPosition()], columnDefinition.getType());
+			Field field = (Field) operand1;
+			if (field.isTs()) {
+				return true; //it is not a filter
+			} else {
+				ColumnDefinition columnDefinition = tableDefinition.getColumnsByName().get(field.getName());
+				type = columnDefinition.getType();
+				val1 = convert(row[columnDefinition.getPosition()], columnDefinition.getType());
+			}
 		}
 		if (operand2 instanceof Field) {
-			ColumnDefinition columnDefinition = tableDefinition.getColumnsByName().get(((Field) operand2).getName());
+			Field field = (Field) operand2;
+			if (field.isTs()) {
+				return true;
+			}
+			ColumnDefinition columnDefinition = tableDefinition.getColumnsByName().get((field.getName()));
 			//validate types compatible
 			if (val1 != null && !val1.equals(val2)) {
 				throw new PolarBearException("Comparing incompatible types");
@@ -70,7 +82,6 @@ class Filter {
 	}
 
 	private boolean compare(Object operand1, Object operand2, String operation) throws PolarBearException {
-
 		switch (operation) {
 			case "=":
 			case "==":

@@ -25,11 +25,6 @@ public class DirsIteratorTest {
 	private String pattern = "YYYY/MM/dd/HH/mm";
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateMaxLimitPostive() throws Exception {
-		new DirsIterator(Paths.get("/"), before, after, pattern, 1, -1);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void validateAfterBefore() throws Exception {
 		new DirsIterator(Paths.get("/"), after, before, pattern, 1, 5);
 	}

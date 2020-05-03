@@ -3,7 +3,6 @@ package cat.altimiras.jdbc.polarbear;
 import java.sql.SQLException;
 
 public class PolarBearException extends SQLException {
-
 	public PolarBearException(String reason) {
 		super(reason);
 	}

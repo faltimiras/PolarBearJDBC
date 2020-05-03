@@ -8,7 +8,7 @@ import java.util.Deque;
 import java.util.List;
 
 public class Query extends SqlBaseListener {
-	private List<Table> tables = new ArrayList<>(); //extra tables to join, star schema
+	private final List<Table> tables = new ArrayList<>(); //extra tables to join, star schema
 
 	private List<Field> fields = new ArrayList<>(); //null means *
 
@@ -21,7 +21,7 @@ public class Query extends SqlBaseListener {
 	private String currentColumnAlias = null;
 
 	//Filters stored in pre-order
-	private Deque<Expr> contextExpr = new ArrayDeque<>();
+	private final Deque<Expr> contextExpr = new ArrayDeque<>();
 
 	@Override
 	public void exitTable(SqlParser.TableContext ctx) {

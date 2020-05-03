@@ -11,7 +11,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class Parser {
-
 	public Query parse(String sql) throws QueryException {
 
 		SqlLexer l = new SqlLexer(CharStreams.fromString(sql));
@@ -19,7 +18,8 @@ public class Parser {
 
 		p.addErrorListener(new BaseErrorListener() {
 			@Override
-			public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+			public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
+				int charPositionInLine, String msg, RecognitionException e) {
 				throw new QueryException("Error close to [" + charPositionInLine + "] due to: " + msg, e);
 			}
 		});

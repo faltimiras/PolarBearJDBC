@@ -1,17 +1,15 @@
 package cat.altimiras.jdbc.polarbear.connection;
 
 import cat.altimiras.jdbc.polarbear.PolarBearException;
-
 import java.sql.Connection;
 
 public class ConnectionFactory {
-
-
 	public static Connection getConnection(String url, String user, String psw) throws PolarBearException {
 		try {
 			String provider = getProviderName(url);
 			if (provider == null) {
-				throw new PolarBearException("url definition incorrect: Must follow format jdbc::polarbear:<provider>//<url|fs>");
+				throw new PolarBearException(
+					"url definition incorrect: Must follow format jdbc::polarbear:<provider>//<url|fs>");
 			}
 
 			String target = url.substring(url.indexOf("//") + 2);
@@ -26,11 +24,11 @@ public class ConnectionFactory {
 				default:
 					throw new PolarBearException("provider not supported");
 			}
-
 		} catch (PolarBearException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new PolarBearException("url definition incorrect: Must follow format jdbc:polarbear:<provider>//<url|fs>", e);
+			throw new PolarBearException(
+				"url definition incorrect: Must follow format jdbc:polarbear:<provider>//<url|fs>", e);
 		}
 	}
 
